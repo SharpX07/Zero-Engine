@@ -1,0 +1,334 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						9
+					],
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "Core",
+					"childIndexes" : 
+					[
+						2
+					],
+					"jsonFile" : "directory-Core-Release-b3854b2db255c35a81c1.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "Core",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "Core/external",
+					"childIndexes" : 
+					[
+						3,
+						5,
+						6,
+						8
+					],
+					"jsonFile" : "directory-Core.external-Release-c089bc8574e1ea911b98.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 2,
+					"source" : "Core/external",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "Core/external/glfw-3.3.9",
+					"childIndexes" : 
+					[
+						4
+					],
+					"jsonFile" : "directory-Core.external.glfw-3.3.9-Release-3ee5e2c27ba9a5365343.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 3,
+					"source" : "Core/external/glfw-3.3.9"
+				},
+				{
+					"build" : "Core/external/glfw-3.3.9/src",
+					"jsonFile" : "directory-Core.external.glfw-3.3.9.src-Release-add2a9168556a7e425ee.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 3,
+					"source" : "Core/external/glfw-3.3.9/src",
+					"targetIndexes" : 
+					[
+						3,
+						6
+					]
+				},
+				{
+					"build" : "Core/external/glad",
+					"jsonFile" : "directory-Core.external.glad-Release-1f14f90cefa71add1d40.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 2,
+					"source" : "Core/external/glad",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "Core/external/glm-master",
+					"childIndexes" : 
+					[
+						7
+					],
+					"jsonFile" : "directory-Core.external.glm-master-Release-b4ed189f3f1cd3175ef7.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 4,
+					"source" : "Core/external/glm-master"
+				},
+				{
+					"build" : "Core/external/glm-master/glm",
+					"jsonFile" : "directory-Core.external.glm-master.glm-Release-9d80202aa883c89e1d89.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 4,
+					"source" : "Core/external/glm-master/glm",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "Core/external/stb",
+					"jsonFile" : "directory-Core.external.stb-Release-d444f508bd2fbab41e17.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 2,
+					"source" : "Core/external/stb",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "App",
+					"jsonFile" : "directory-App-Release-9910e6dded6739cc0f00.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 5,
+					"source" : "App",
+					"targetIndexes" : 
+					[
+						7
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Zero_engine"
+				},
+				{
+					"childIndexes" : 
+					[
+						2
+					],
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "core_folder",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						3,
+						4
+					],
+					"directoryIndexes" : 
+					[
+						2,
+						5,
+						8
+					],
+					"name" : "core_external",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						0,
+						2,
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						3,
+						4
+					],
+					"name" : "GLFW",
+					"parentIndex" : 2,
+					"targetIndexes" : 
+					[
+						3,
+						6
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						6,
+						7
+					],
+					"name" : "glm",
+					"parentIndex" : 2,
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						9
+					],
+					"name" : "zeroengine",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "core_external::@f0b208500d6db008f355",
+					"jsonFile" : "target-core_external-Release-97d8e353db86420e6ff2.json",
+					"name" : "core_external",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "core_folder::@94795ff35dabbbd3a8ca",
+					"jsonFile" : "target-core_folder-Release-5d314e0ccaf233d30563.json",
+					"name" : "core_folder",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "glad::@49a922d5d74819a89419",
+					"jsonFile" : "target-glad-Release-6bd8605686f81a68a718.json",
+					"name" : "glad",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "glfw::@1bf436782451d4fd2f4d",
+					"jsonFile" : "target-glfw-Release-325e633e57d0f2ff668e.json",
+					"name" : "glfw",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "glm::@5cc989c10cdb48b3fabc",
+					"jsonFile" : "target-glm-Release-b0b2e972480c333756b7.json",
+					"name" : "glm",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "stb::@3ed8efa0d09ce83feec3",
+					"jsonFile" : "target-stb-Release-4e108090b19204bb0a9d.json",
+					"name" : "stb",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "update_mappings::@1bf436782451d4fd2f4d",
+					"jsonFile" : "target-update_mappings-Release-ae49ed7ea0174578290e.json",
+					"name" : "update_mappings",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "zeroengine::@4cec9bfdf5c218c89c51",
+					"jsonFile" : "target-zeroengine-Release-a2b0ec1353b3b34a8106.json",
+					"name" : "zeroengine",
+					"projectIndex" : 5
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/Miguel/Documents/GitHub/Zero-engine/out/build/x64-release",
+		"source" : "C:/Users/Miguel/Documents/GitHub/Zero-engine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

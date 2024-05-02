@@ -1,13 +1,13 @@
 ﻿#include "App.h"
 #include <GL_graphics/Shader.h>
 #include <Debug/Logger.h>
-#include <vector>
-#include <random>
 #include <ext/matrix_transform.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <GL_graphics/Texture.h>
 #include <Buffers/AttributeLayout.h>
+#include <glm/glm.hpp>
+#include <ext/matrix_clip_space.hpp>
 
 namespace zeroengine
 {
@@ -27,7 +27,6 @@ namespace zeroengine
 			// Mueve el punto seg�n la tecla presionada
 			switch (key) {
 			case GLFW_KEY_W:
-				text->SetTexture("C:/Users/Miguel/Documents/GitHub/Zero-engine/App/Assets/Textures/audrey.jpg");
 				break;
 			}
 		}
@@ -39,8 +38,7 @@ namespace zeroengine
 
 		window.initialize();
 		window.create(Resolution_.x, Resolution_.y, "Zero Engine");
-
-		// Inicializar GLAD
+		// Inicializar GLADZZ
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			logger.logError("Error al inicializar GLAD");
 			return;
@@ -52,16 +50,44 @@ namespace zeroengine
 		glfwSetKeyCallback(window.window, keyCallback);
 		// Definir los v�rtices del tri�ngulo
 		float vertices[] = {
-			0.5f, 0.5f, 0.0f, 1.0f,1.0f, // top right
-			0.5f, -0.5f, 0.0f, 1.0f,0.0f, // bottom right
-			-0.5f, -0.5f, 0.0f, 0.0f,0.0f, // bottom left
-			-0.5f, 0.5f, 0.0f, 0.0f,1.0f // top left
+			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+			0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+			-0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+			-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			-0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+			-0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+			0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+			0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+			0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+			-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f
 		};
 
-		unsigned int indices[] = { // note that we start from 0!
-			0, 1, 3, // first triangle
-			1, 2, 3  // second triangle
-		};
 		// Crear un b�fer de v�rtices y enlazarlo
 		VAO_ = new VAO();
 		VAO_->Bind();
@@ -70,12 +96,10 @@ namespace zeroengine
 		layout.addAttribute(GL_FLOAT, 3);
 		layout.addAttribute(GL_FLOAT, 2);
 		VAO_->AddBuffer(*VBO_, layout);
-		EBO_ = new EBO(indices, sizeof(indices));
 
 		// Desvincular VAO y VBO
 		VAO_->UnBind();
 		VBO_->UnBind();
-		EBO_->UnBind();
 	}
 
 	void App::run()
@@ -89,18 +113,18 @@ namespace zeroengine
 		zeroengine::Shader shader("App/Assets/shaders/vertex.glsl", "App/Assets/shaders/fragment.glsl");
 		// texture 1
 		// ---------
-		zeroengine::GLTexture texture2("App/Assets/Textures/sm.jpg");
-		zeroengine::GLTexture texture("App/Assets/Textures/audrey.jpg");
+		zeroengine::GLTexture texture("App/Assets/Textures/gato.jpg");
 
 		zeroengine::VertexAttributeLayout val;
 		// Activar y vincular la primera textura
 		texture.Bind(0);
-		// Activar y vincular la segunda textura
-		texture2.Bind(1);
 		// Cargar la textura utilizando la clase Texture
 		shader.Use();
-		shader.setInt("ourTexture2", 1);
 		shader.setInt("ourTexture", 0);
+		glEnable(GL_DEPTH_TEST);
+
+		float movex=0, movey = 0, movez = 0;
+
 		while (!window.shouldClose()) {
 			//Variables de uso general
 			Time_ = glfwGetTime();
@@ -108,16 +132,53 @@ namespace zeroengine
 			processInput(window.window);
 			// Limpiar el fondo
 			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			//codigo que usar movex,movey,movez para mover laca visión
+			float speed = 0.1f; // Velocidad de movimiento de la cámara
+			if (glfwGetKey(window.window, GLFW_KEY_W) == GLFW_PRESS) {
+				movez -= speed; // Mueve la cámara hacia adelante en el eje z
+			}
+			if (glfwGetKey(window.window, GLFW_KEY_S) == GLFW_PRESS) {
+				movez += speed; // Mueve la cámara hacia atrás en el eje z
+			}
+			if (glfwGetKey(window.window, GLFW_KEY_A) == GLFW_PRESS) {
+				movex -= speed; // Mueve la cámara hacia la izquierda en el eje x
+			}
+			if (glfwGetKey(window.window, GLFW_KEY_D) == GLFW_PRESS) {
+				movex += speed; // Mueve la cámara hacia la derecha en el eje x
+			}
+			if (glfwGetKey(window.window, GLFW_KEY_Q) == GLFW_PRESS) {
+				movey -= speed; // Mueve la cámara hacia abajo en el eje y
+			}
+			if (glfwGetKey(window.window, GLFW_KEY_E) == GLFW_PRESS) {
+				movey += speed; // Mueve la cámara hacia arriba en el eje y
+			}
 			// Usar el programa de shaders
 			shader.Use();
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::rotate(model, glm::radians((float)Time_ * 200),
+				glm::vec3(1.0f, 0.0f, 0.0f));
+
+			glm::mat4 view = glm::mat4(1.0f);
+			// note that we’re translating the scene in the reverse direction
+			view = glm::translate(view, glm::vec3(movex,movey,movez));
+			glm::mat4 projection(1.0f);
+			projection = glm::perspective(glm::radians(45.0f), (float)Resolution_.x / (float)Resolution_.y, 0.1f, 100.0f);
+
 			shader.setFloat("uTime", (float)Time_);
+			shader.setMat4("model", model);
+			shader.setMat4("projection", projection);
+			shader.setMat4("view", view);
 			// Dibujar el triángulo
 			VAO_->Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 			window.update();
+			int x, y;
+			glfwGetWindowSize(window.window, &x, &y);
+			Resolution_ = glm::uvec2(x, y);
 		}
 
 	}
@@ -127,7 +188,6 @@ namespace zeroengine
 		// Limpiar recursos
 		delete VAO_;
 		delete VBO_;
-		delete EBO_;
 		// Terminar GLFW
 		glfwTerminate();
 	}

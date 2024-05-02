@@ -24,7 +24,6 @@ namespace zeroengine {
 
 	void Window::create(int width, int height, const char* title)
 	{
-		glfwSwapInterval(1);
 		// Create GLFW window
 		window = glfwCreateWindow(width, height, title, NULL, NULL);
 		if (!window) {
@@ -33,6 +32,7 @@ namespace zeroengine {
 			exit(EXIT_FAILURE);
 		}
 		glfwMakeContextCurrent(window);
+		glfwSwapInterval(1);
 	}
 
 	bool Window::shouldClose() {

@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <ext/matrix_clip_space.hpp>
 #include <ResourceManagement/Mesh.h>
-#include <ResourceManagement/ModelReader.h>
+#include <Modules/ModelReader.h>
 #include <stb_image.h>
 
 namespace Zero
@@ -48,16 +48,22 @@ namespace Zero
 		stbi_set_flip_vertically_on_load(true);
 		// Render Configurations
 		m_RenderModule.EnableCapability(GL_DEPTH_TEST);
+		m_RenderModule.EnableCapability(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		Zero::ModelReader modelo("Assets/Models/airboat.obj");
-		mesh_ = new Mesh(modelo.vertices, modelo.indices);
-		
+		GLTexture texturaPrueba("Assets/Textures/sm.png");
+		GLTexture texturaPrueba2("Assets/Textures/audrey.png");
+		mesh::MeshTexture prueba = { &texturaPrueba , mesh::DIFFUSE ,"" };
+		mesh::MeshTexture prueba2 = { &texturaPrueba2 , mesh::DIFFUSE ,"" };
+		mesh_ = new Mesh(modelo.vertices, modelo.indices, {prueba,prueba2});
+
 		Zero::Shader shader("Assets/shaders/vertex.glsl", "Assets/shaders/fragment.glsl");
 		shader.Use();
 		shader.setInt("ourTexture", 0);
+		shader.setInt("ourTexture2", 1);
 
 		float movex = 0, movey = 0, movez = 0;
-
 		while (!window.ShouldClose()) {
 			//Variables de uso general
 			Time_ = glfwGetTime();

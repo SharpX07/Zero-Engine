@@ -3,34 +3,32 @@
 namespace Zero
 {
 
-	Mesh::Mesh(std::vector<mesh::MeshVertex> vertices, std::vector<unsigned int> indices)
+	Mesh::Mesh
+	(
+		std::vector<mesh::MeshVertex> vertices,
+		std::vector<unsigned int> indices,
+		std::vector<mesh::MeshTexture> textures
+		)
 	{
-		this->vertices = vertices;
-		this->indices = indices;
+		this->Vertices = vertices;
+		this->Indices = indices;
+		this->Texures = textures;
 		SetupMesh();
-	}
-
-	void Mesh::Draw(const Zero::Shader& shader)
-	{
-		Zero::GLTexture texture("");
-		texture.Bind(0);
-
-		m_VAO->Bind();
-		glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
-		glActiveTexture(GL_TEXTURE0);
 	}
 
 	void Mesh::SetupMesh()
 	{
 		m_VAO = new Zero::VAO();
-		m_VAO->Bind();
-		m_VBO = new Zero::VBO(&vertices[0], vertices.size() * sizeof(mesh::MeshVertex));
 		Zero::VertexAttributeLayout layout;
-		m_EBO = new Zero::EBO(&indices[0], indices.size() * sizeof(unsigned int));
+		m_VAO->Bind();
+
+		m_VBO = new Zero::VBO(&Vertices[0], Vertices.size() * sizeof(mesh::MeshVertex));
+		m_EBO = new Zero::EBO(&Indices[0], Indices.size() * sizeof(unsigned int));
 		layout.addAttribute(GL_FLOAT, 3);
 		layout.addAttribute(GL_FLOAT, 2);
 
 		m_VAO->AddBuffer(*m_VBO, layout);
+		
 	}
 };
 

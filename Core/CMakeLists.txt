@@ -23,8 +23,6 @@ target_include_directories( ${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/external/glm-master/glm
     ${PROJECT_SOURCE_DIR}/external/glfw-3.3.9/include
     ${PROJECT_SOURCE_DIR}/external/stb/include
+    ${PROJECT_SOURCE_DIR}/external/entt/include
+    ${PROJECT_SOURCE_DIR}/external/assimp/include
 )
-
-add_custom_target(copy_core_assets ALL)
-  file(COPY "Assets" DESTINATION "${CMAKE_BINARY_DIR}/App/Core")
-add_dependencies(${PROJECT_NAME} copy_core_assets)

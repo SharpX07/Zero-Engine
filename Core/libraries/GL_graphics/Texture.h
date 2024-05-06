@@ -19,14 +19,14 @@ namespace Zero
 		void SetTexture(const char* texturePath);
 		void Bind(unsigned int slot) const;
 		void Unbind() const;
+
     private:
 		void SetPixelStoreAlignment(int width);
 		void SetTextureParameters(GLenum wrapS, GLenum wrapT, GLenum minFilter, GLenum magFilter);
 		int LoadTexture(int& width, int& height, int& nrChannels, const char* texturePath);
         GLboolean hasTransparency=false;
-
-        unsigned int m_id;
         int m_width, m_height, m_nrChannels;
 		unsigned char *m_data;
+        unsigned int m_id;
 	};
 }

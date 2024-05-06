@@ -29,31 +29,31 @@ namespace Zero
 			METALNESS,
 			EMISSIVE
 		};
-		/*struct Texture {
-			unsigned int id;
-			string type;
-			string path;
-		};
 		struct MeshTexture {
-			unsigned int 
-		};*/
+			Zero::GLTexture *GlTexture;
+			MeshTextureTypes Type;
+			std::string Path;
+		};
 	}
 
 	class Mesh {
 	public:
 
-		Mesh(std::vector<mesh::MeshVertex> vertices, std::vector<unsigned int> indices);
-		// render the mesh
-		void Draw(const Zero::Shader& shader);
+		Mesh(
+			std::vector<mesh::MeshVertex> vertices,
+			std::vector<unsigned int> indices,
+			std::vector<mesh::MeshTexture> textures
+		);
 		void SetupMesh();
 
 	private:
 		Zero::VBO* m_VBO;
 		Zero::EBO* m_EBO;
 	public:
-		std::vector<mesh::MeshVertex>	vertices;
-		std::vector<unsigned int>		indices;
-		Zero::VAO*				m_VAO;
+		std::vector<mesh::MeshVertex>	Vertices;
+		std::vector<unsigned int>		Indices;
+		std::vector<mesh::MeshTexture>	Texures;
+		Zero::VAO* m_VAO;
 	};
 
 }

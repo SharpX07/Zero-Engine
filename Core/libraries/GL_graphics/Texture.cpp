@@ -17,8 +17,12 @@ namespace Zero
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		SetPixelStoreAlignment(m_width);
 		SetTextureParameters(GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB,
-			GL_UNSIGNED_BYTE, m_data);
+		if(m_nrChannels==4)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, m_data);
+		else
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_width, m_height, 0, GL_RGB,
+				GL_UNSIGNED_BYTE, m_data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}

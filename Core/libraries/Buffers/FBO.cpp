@@ -1,6 +1,6 @@
 #include <Buffers/FBO.h>
 #include <Debug/Logger.h>
-namespace zeroengine
+namespace Zero
 {
 	Framebuffer::Framebuffer(int width, int height)
 	{

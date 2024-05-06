@@ -10,11 +10,11 @@
 
 #include <glm.hpp>
 
-namespace zeroengine
+namespace Zero
 {
 	class GLTexture {
 	public:
-        GLTexture(const char* texturePath);
+        GLTexture(const char* texturePath="");
 		~GLTexture();
 		void SetTexture(const char* texturePath);
 		void Bind(unsigned int slot) const;

@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-namespace zeroengine {
+namespace Zero {
 	Shader::Shader(const char* vertexPath, const char* fragmentPath) {
         Logger logger;
         // 1. retrieve the vertex/fragment source code from filePath

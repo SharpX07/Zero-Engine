@@ -1,6 +1,6 @@
 #include <Buffers/VAO.h>
 
-namespace zeroengine
+namespace Zero
 {
 	VAO::VAO() : m_id(0)
 	{
@@ -31,7 +31,7 @@ namespace zeroengine
 		buffer.Bind();
 		const auto& elements = layout.GetAttributeElements();
 		unsigned int offset=0;
-		for (size_t i = 0; i < elements.size(); i++)
+		for (unsigned int i = 0; i < elements.size(); i++)
 		{
 			const auto& element = elements.at(i);
 			glEnableVertexAttribArray(i);

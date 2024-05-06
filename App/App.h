@@ -8,29 +8,31 @@
 #include <Buffers/VAO.h>
 #include <Buffers/EBO.h>
 #include <core/Window.h>
-
-namespace zeroengine
+#include <ResourceManagement/Mesh.h>
+#include <glm/glm.hpp>
+#include <Modules/Renderer.h>
+#include <Debug/Logger.h>
+namespace Zero
 {
 	void glfw_framebuffer_callback(GLFWwindow* window, int width, int height);
 
 	class App
 	{
 	public:
+		
 		glm::uvec2 Resolution_;
 		double Time_;
-		float TimeDelta_;
-		float FrameRate_;
-		int Frame_;
+		//float TimeDelta_;
+		//float FrameRate_;
+		//int Frame_;
 
-		zeroengine::Window window;
-		unsigned int shaderProgram;
-		VBO* VBO_;
-		VAO* VAO_;
-		EBO* EBO_;
+		Zero::Window window;
+		Mesh *mesh_;
 		App();
 		void run();
 		void stop();
 	private:
-
+		Zero::Renderer m_RenderModule;
+		Zero::Logger  m_Log;
 	};
 }

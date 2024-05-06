@@ -21,3 +21,7 @@ target_link_libraries(${PROJECT_NAME}
     glfw
     stb
 )
+
+add_custom_target(copy_assets ALL)
+  file(COPY "Assets" DESTINATION "${CMAKE_BINARY_DIR}/App")
+add_dependencies(${PROJECT_NAME} copy_assets)

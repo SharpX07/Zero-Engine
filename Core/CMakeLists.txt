@@ -5,7 +5,10 @@ file(GLOB SOURCES
     "libraries/Debug/*.cpp"
     "libraries/Buffers/*.cpp"
     "libraries/GL_graphics/*.cpp"
+    "libraries/ECS/*.cpp"
     "libraries/core/*.cpp"
+    "libraries/ResourceManagement/*.cpp"
+    "libraries/Modules/*.cpp"
 )
 add_subdirectory(external)
 
@@ -21,3 +24,7 @@ target_include_directories( ${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}/external/glfw-3.3.9/include
     ${PROJECT_SOURCE_DIR}/external/stb/include
 )
+
+add_custom_target(copy_core_assets ALL)
+  file(COPY "Assets" DESTINATION "${CMAKE_BINARY_DIR}/App/Core")
+add_dependencies(${PROJECT_NAME} copy_core_assets)

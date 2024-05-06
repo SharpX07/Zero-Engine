@@ -3,7 +3,7 @@
 #include <Buffers/VBO.h>
 #include <Buffers/AttributeLayout.h>
 
-namespace zeroengine
+namespace Zero
 {
 	class VAO
 	{

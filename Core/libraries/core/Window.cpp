@@ -1,13 +1,14 @@
 #include "Window.h"
 #include <Debug/Logger.h>
+#include <glad/glad.h>
 
-namespace zeroengine {
+namespace Zero {
 
 	Window::~Window() {
 		glfwTerminate();
 	}
 
-	void Window::initialize()
+	void Window::Initialize()
 	{
 		Logger log;
 		// Initialize GLFW
@@ -22,25 +23,28 @@ namespace zeroengine {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	}
 
-	void Window::create(int width, int height, const char* title)
+	void Window::Create(int width, int height, const char* title)
 	{
 		// Create GLFW window
-		window = glfwCreateWindow(width, height, title, NULL, NULL);
-		if (!window) {
+		glfwWindowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
+		if (!glfwWindowHandle) {
 			std::cerr << "Error: Failed to create GLFW window" << std::endl;
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
-		glfwMakeContextCurrent(window);
-		glfwSwapInterval(1);
+		glfwMakeContextCurrent(glfwWindowHandle);
+		//glfwSwapInterval(1);
 	}
 
-	bool Window::shouldClose() {
-		return glfwWindowShouldClose(window);
+	bool Window::ShouldClose() {
+		return glfwWindowShouldClose(glfwWindowHandle);
 	}
-
-	void Window::update() {
-		glfwSwapBuffers(window);
+	bool Window::InitializeGLAD()
+	{
+		return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+	}
+	void Window::Update() {
+		glfwSwapBuffers(glfwWindowHandle);
 		glfwPollEvents();
 	}
 

@@ -8,6 +8,7 @@ add_subdirectory(glfw-3.3.9)
 add_subdirectory(glad)
 add_subdirectory(glm-master)
 add_subdirectory(stb)
+add_subdirectory(entt)
 # Aseg�rate de incluir los directorios de los encabezados de GLFW
 add_library(${PROJECT_NAME} external.cpp)
 
@@ -17,6 +18,7 @@ target_include_directories( ${PROJECT_NAME}
     ${PROJECT_SOURCE_DIR}glm-master/glm
     ${PROJECT_SOURCE_DIR}glfw-3.3.9/include
     ${PROJECT_SOURCE_DIR}stb/include
+    ${PROJECT_SOURCE_DIR}entt/include
 )
 
 

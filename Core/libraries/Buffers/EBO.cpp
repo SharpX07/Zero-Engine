@@ -1,6 +1,6 @@
 #include "EBO.h"
 
-zeroengine::EBO::EBO(const void* _indices, size_t size)
+Zero::EBO::EBO(const void* _indices, size_t size)
 {
 	glGenBuffers(1, &m_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
@@ -8,17 +8,17 @@ zeroengine::EBO::EBO(const void* _indices, size_t size)
 		GL_STATIC_DRAW);
 }
 
-zeroengine::EBO::~EBO()
+Zero::EBO::~EBO()
 {
 	glDeleteBuffers(1, &m_id);
 }
 
-void zeroengine::EBO::Bind() const
+void Zero::EBO::Bind() const
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 }
 
-void zeroengine::EBO::UnBind()
+void Zero::EBO::UnBind()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

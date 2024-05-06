@@ -1,6 +1,6 @@
 #include <Buffers/VBO.h>
 
-namespace zeroengine
+namespace Zero
 {
 	VBO::VBO(const void* _data, const size_t _size) : Id_(0)
 	{

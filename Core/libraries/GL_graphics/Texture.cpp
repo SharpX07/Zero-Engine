@@ -3,14 +3,14 @@
 #include <stb_image.h>
 #include <GLFW/glfw3.h>
 
-namespace zeroengine
+namespace Zero
 {
-	GLTexture::GLTexture(const char* texturePath = "")
+	GLTexture::GLTexture(const char* texturePath)
 	{
 		if (LoadTexture(m_width, m_height, m_nrChannels, texturePath) != 0)
 		{
 			Logger logger;
-			logger.logWarning("Texture missing on " + std::string(texturePath));
+			//logger.logWarning("Texture missing on " + std::string(texturePath));
 			LoadTexture(m_width, m_height, m_nrChannels, "Core/Assets/Textures/missing_texture.jpg");
 		}
 		glGenTextures(1, &m_id);

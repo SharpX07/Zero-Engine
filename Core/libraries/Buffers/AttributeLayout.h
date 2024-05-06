@@ -1,7 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <vector>
-namespace zeroengine
+namespace Zero
 {
 	struct AttributeElement
 	{
@@ -26,8 +26,6 @@ namespace zeroengine
 			return 0;
 		}
 	};
-
-	
 
 	class VertexAttributeLayout
 	{

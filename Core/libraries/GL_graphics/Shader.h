@@ -12,7 +12,7 @@
 
 
 
-namespace zeroengine
+namespace Zero
 {
 	class Shader {
 	public:

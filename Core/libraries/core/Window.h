@@ -1,24 +1,25 @@
 #include <iostream>
+#define GLFW_INCLUDE_NONE 
 #include <GLFW/glfw3.h>
 
-namespace zeroengine
+namespace Zero
 {
 	class Window {
 
 	public:
-		GLFWwindow* window;
+		GLFWwindow* glfwWindowHandle;
 		// Constructor
 		Window() = default;
 
 		// Destructor
 		~Window();
 
-		void initialize();
-		void create(int width, int height, const char* title);
+		void Initialize();
+		void Create(int width, int height, const char* title);
 		// Function to check if window should close
-		bool shouldClose();
-
+		bool ShouldClose();
+		bool InitializeGLAD();
 		// Function to update the window
-		void update();
+		void Update();
 	};
 }

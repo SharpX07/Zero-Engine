@@ -2,20 +2,28 @@
 
 #include <glad/glad.h>
 
-#include <string>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <vector>
 #include <ResourceManagement/Mesh.h>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <glm/glm.hpp>
+#include <ResourceManagement/Model.h>
 namespace Zero
 {
-	class ModelReader {
+	class ModelImporter {
 	public:
-		ModelReader(const char* texturePath);
-		std::vector<mesh::MeshVertex>	vertices;
-		std::vector<unsigned int>		indices;
-		std::vector<mesh::MeshTexture>	textures;
+		ModelImporter() = default;
+		~ModelImporter()
+		{
+		}
+		Model* loadModel(const char* _modelPath);
+	private:
+		void ExploreNode(aiNode* node, const aiScene* scene, Model* model, glm::mat4 mTrasformation);
+		std::vector<MeshTexture> LoadMaterialTextures(aiMaterial* mat, const Model* model);
+		void LoadModelMaterials(const aiScene* scene, Model* model);
+		Mesh loadMesh(aiMesh* mesh, const aiScene* scene, Model* model, glm::mat4& mat);
+		glm::vec3 AssimpToGLM(aiVector3D vector);
+		glm::mat4 AssimpToGLM(aiMatrix4x4& mat);
+		std::vector<MeshTexture> m_MeshTexturesLoaded;
 	};
 }

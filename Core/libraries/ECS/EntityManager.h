@@ -2,7 +2,6 @@
 #include <queue>
 #include <unordered_map>
 #include <ECS/Entity.h>
-#include <Debug/Logger.h>
 
 namespace Zero
 {
@@ -19,7 +18,6 @@ namespace Zero
 		const inline std::unordered_map<unsigned int, Entity>& GetEntities() const { return m_Entities; }
 
 	private:
-		Logger m_Log;
 		std::queue<unsigned int> m_FreeIds{};
 		std::unordered_map<unsigned int, Entity> m_Entities;
 	};

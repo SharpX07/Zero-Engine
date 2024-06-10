@@ -1,11 +1,9 @@
 #include <Buffers/FBO.h>
-#include <Debug/Logger.h>
+#include <stdexcept>
 namespace Zero
 {
 	Framebuffer::Framebuffer(int width, int height)
 	{
-		Logger log;
-
 		glGenFramebuffers(1, &framebufferId_);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId_);
 

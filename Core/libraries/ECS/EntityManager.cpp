@@ -1,5 +1,6 @@
 #include "EntityManager.h"
 #include <string>
+#include <core/Logger.h>
 namespace Zero
 {
 	EntityManager::~EntityManager()
@@ -20,7 +21,7 @@ namespace Zero
 		if (it != m_Entities.end())
 			m_Entities.erase(it);
 		else
-			m_Log.logError("No se pudo eliminar la identidad con ID: " + std::to_string(entity.Id));
+			ZERO_CORE_LOG_ERROR("No se pudo eliminar la identidad con ID: {0}", entity.Id);
 	}
 
 	void EntityManager::DeleteEntity(unsigned int id)
@@ -29,7 +30,7 @@ namespace Zero
 		if (it != m_Entities.end())
 			m_Entities.erase(it);
 		else
-			m_Log.logError("No se pudo eliminar la identidad con ID: " + std::to_string(id));
+			ZERO_CORE_LOG_ERROR("No se pudo eliminar la identidad con ID: {0}", id);
 	}
 
 	Entity* EntityManager::GetEntity(unsigned int id)
@@ -38,7 +39,6 @@ namespace Zero
 		if (it != m_Entities.end())
 			return &it->second;
 		else
-			m_Log.logError("No se pudo encontrar la identidad con ID: " + std::to_string(id));
+			ZERO_CORE_LOG_ERROR("No se pudo eliminar la identidad con ID: {0}", id);
 	}
-
 }

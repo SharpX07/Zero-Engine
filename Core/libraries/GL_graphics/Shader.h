@@ -1,9 +1,7 @@
 #pragma once
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 #include <glad/glad.h>
-#include <Debug/Logger.h>
-
 #include <string>
 #include <string>
 #include <fstream>

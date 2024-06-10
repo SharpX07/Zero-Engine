@@ -8,8 +8,6 @@
 #include <sstream>
 #include <iostream>
 
-#include <glm.hpp>
-
 namespace Zero
 {
 	class GLTexture {

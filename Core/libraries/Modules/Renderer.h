@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <ResourceManagement/Mesh.h>
+#include <ResourceManagement/Model.h>
 namespace Zero
 {
 	class Renderer
@@ -26,7 +27,9 @@ namespace Zero
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 		inline const void EnableCapability(GLenum capability) const { glEnable(capability); }
-		void Render(Mesh& mesh);
+		void Render(Model& model, Shader& shader);
+		std::unique_ptr<GLTexture> noTextureSample;
+		void InitializeRenderer();
 	};
 
 

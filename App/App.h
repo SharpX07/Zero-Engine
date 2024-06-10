@@ -1,38 +1,36 @@
 #pragma once
-#include <iostream>
-#include <core/BaseApp.h>
-#include <iostream>
 #define GLFW_INCLUDE_NONE
+#include <iostream>
 #include <glad/glad.h>
 #include <Buffers/VBO.h>
 #include <Buffers/VAO.h>
 #include <Buffers/EBO.h>
-#include <core/Window.h>
 #include <ResourceManagement/Mesh.h>
 #include <glm/glm.hpp>
 #include <Modules/Renderer.h>
-#include <Debug/Logger.h>
+#include <core/Logger.h>
+#include <core/Application.h>
+#include <core/Window.h>
+
 namespace Zero
 {
-	void glfw_framebuffer_callback(GLFWwindow* window, int width, int height);
-
-	class App
+	class Game : public Application
 	{
 	public:
-		
 		glm::uvec2 Resolution_;
 		double Time_;
 		//float TimeDelta_;
 		//float FrameRate_;
 		//int Frame_;
 
-		Zero::Window window;
-		Mesh *mesh_;
-		App();
-		void run();
-		void stop();
+		Game();
+		GLFWwindow* GetGlfwWindow() override;
+		void Run()  override;
+		void Stop()  override;
+		void OnEvent(Event& e);
 	private:
+		Zero::Window m_Window;
 		Zero::Renderer m_RenderModule;
-		Zero::Logger  m_Log;
+		Zero::Log m_Logger;
 	};
 }

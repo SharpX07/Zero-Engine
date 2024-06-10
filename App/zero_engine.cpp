@@ -1,7 +1,8 @@
-﻿#include <App.h>
+﻿#include "App.h"
 
-int main(int argc, char* argv[]) {
-    Zero::App app;
-    app.run();
-    app.stop();
+int main()
+{
+	Zero::Game app;
+	app.Run();
+	app.Stop();
 }

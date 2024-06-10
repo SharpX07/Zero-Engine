@@ -10,7 +10,7 @@
 #include <Buffers/EBO.h>
 #include <GL_graphics/Shader.h>
 #include <GL_graphics/Texture.h>
-
+#include <ResourceManagement/Material.h>
 namespace Zero
 {
 
@@ -18,21 +18,8 @@ namespace Zero
 	{
 		struct MeshVertex {
 			glm::vec3 Position;
+			glm::vec3 Normal;
 			glm::vec2 TexCoords;
-		};
-
-		enum MeshTextureTypes {
-			DIFFUSE,
-			SPECULAR,
-			NORMAL,
-			ROUGHNESS,
-			METALNESS,
-			EMISSIVE
-		};
-		struct MeshTexture {
-			Zero::GLTexture *GlTexture;
-			MeshTextureTypes Type;
-			std::string Path;
 		};
 	}
 
@@ -42,18 +29,24 @@ namespace Zero
 		Mesh(
 			std::vector<mesh::MeshVertex> vertices,
 			std::vector<unsigned int> indices,
-			std::vector<mesh::MeshTexture> textures
+			const Material& material
 		);
+		~Mesh()
+		{
+			Vertices.clear();
+			VertexIndices.clear();
+		}
+
 		void SetupMesh();
 
 	private:
-		Zero::VBO* m_VBO;
-		Zero::EBO* m_EBO;
+		std::shared_ptr<Zero::VBO> m_VBO;
+		std::shared_ptr<Zero::EBO> m_EBO;
 	public:
 		std::vector<mesh::MeshVertex>	Vertices;
-		std::vector<unsigned int>		Indices;
-		std::vector<mesh::MeshTexture>	Texures;
-		Zero::VAO* m_VAO;
+		std::vector<unsigned int>		VertexIndices;
+		Material Material;
+		std::shared_ptr<Zero::VAO> m_VAO;
 	};
 
 }

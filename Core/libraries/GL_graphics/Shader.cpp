@@ -1,8 +1,7 @@
 #include "Shader.h"
-
+#include <core/Logger.h>
 namespace Zero {
 	Shader::Shader(const char* vertexPath, const char* fragmentPath) {
-        Logger logger;
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -34,7 +33,7 @@ namespace Zero {
         }
         catch (std::ifstream::failure& e)
         {
-            logger.logError("SHADER::FILE_NOT_SUCCESSFULLY_READ: " + std::string(e.what()));
+            ZERO_CORE_LOG_ERROR("SHADER::FILE_NOT_SUCCESSFULLY_READ:{0}", e.what());
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
@@ -85,13 +84,12 @@ namespace Zero {
 	}
 
 	const char* Shader::GetLastError() {
-		// Implementar la l�gica para obtener el mensaje de error m�s reciente.
 		return nullptr;
 	}
 
 	void Shader::checkCompileErrors(GLuint shader, std::string type)
 	{
-		Logger logger;
+		Log logger;
 		GLint success;
 		GLchar infoLog[1024];
 		if (type != "PROGRAM")
@@ -100,7 +98,7 @@ namespace Zero {
 			if (!success)
 			{
 				glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-				logger.logError("SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog);
+                ZERO_CORE_LOG_ERROR("SHADER_COMPILATION_ERROR of type: {0} \n{1}", type, infoLog);
 			}
 		}
 		else
@@ -109,7 +107,7 @@ namespace Zero {
 			if (!success)
 			{
 				glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-				logger.logError("SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog);
+                ZERO_CORE_LOG_ERROR("SHADER_COMPILATION_ERROR of type: {0} \n{1}", type, infoLog);
 			}
 		}
 

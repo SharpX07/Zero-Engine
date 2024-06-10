@@ -1,6 +1,9 @@
 #include "Window.h"
-#include <Debug/Logger.h>
+#include <core/Logger.h>
 #include <glad/glad.h>
+#include <Events/KeyEvents.h>
+#include <Events/MouseEvents.h>
+#include <Events/WindowEvents.h>
 
 namespace Zero {
 
@@ -10,10 +13,10 @@ namespace Zero {
 
 	void Window::Initialize()
 	{
-		Logger log;
+		Log log;
 		// Initialize GLFW
 		if (!glfwInit()) {
-			log.logError("Error: Failed to initialize GLFW!");
+			ZERO_CORE_LOG_CRITICAL("No se pudo inicializar GLFW");
 			exit(EXIT_FAILURE);
 		}
 
@@ -25,15 +28,88 @@ namespace Zero {
 
 	void Window::Create(int width, int height, const char* title)
 	{
-		// Create GLFW window
+		m_Data.Height = height;
+		m_Data.Width = width;
+		m_Data.Title = title;
 		glfwWindowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
 		if (!glfwWindowHandle) {
-			std::cerr << "Error: Failed to create GLFW window" << std::endl;
+			ZERO_CORE_LOG_ERROR("Error: Failed to create GLFW window");
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
+		glfwSetWindowUserPointer(glfwWindowHandle, &m_Data);
 		glfwMakeContextCurrent(glfwWindowHandle);
-		//glfwSwapInterval(1);
+
+		// KeyCallback
+		glfwSetKeyCallback(glfwWindowHandle,
+			[](GLFWwindow* window, int key, int scancode, int action, int mods)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				switch (action)
+				{
+				case GLFW_PRESS:
+				{
+					KeyPressedEvent event(key, 0);
+					data.EventCallbackFn(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					KeyReleasedEvent event(key);
+					data.EventCallbackFn(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					KeyPressedEvent event(key, true);
+					data.EventCallbackFn(event);
+					break;
+				}
+				}
+			});
+		// FrameBufferCallback
+
+		glfwSetFramebufferSizeCallback(glfwWindowHandle,
+			[](GLFWwindow* window, int width, int height)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				data.Width = width;
+				data.Height = height;
+				WindowResizeEvent event(width, height);
+				data.EventCallbackFn(event);
+				glViewport(0, 0, width, height);
+			});
+		//MouseButtonCallback
+		glfwSetMouseButtonCallback(glfwWindowHandle,
+			[](GLFWwindow* window, int button, int action, int mods)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				switch (action)
+				{
+				case GLFW_PRESS:
+				{
+					MouseButtonPressedEvent event(button);
+					data.EventCallbackFn(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					MouseButtonReleasedEvent event(button);
+					data.EventCallbackFn(event);
+					break;
+				}
+				}
+
+			});
+		//MouseScrollCallback
+		glfwSetScrollCallback(glfwWindowHandle,
+			[](GLFWwindow* window, double xoffset, double yoffset)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				MouseScrolledEvent event(xoffset, yoffset);
+				data.EventCallbackFn(event);
+			});
+		glfwSwapInterval(1);
 	}
 
 	bool Window::ShouldClose() {

@@ -1,29 +1,45 @@
 #include "Texture.h"
-#include <Debug/Logger.h>
-#include <stb_image.h>
+#include <core/Logger.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 #include <GLFW/glfw3.h>
 
 namespace Zero
 {
 	GLTexture::GLTexture(const char* texturePath)
 	{
+		Log logger;
 		if (LoadTexture(m_width, m_height, m_nrChannels, texturePath) != 0)
 		{
-			Logger logger;
-			//logger.logWarning("Texture missing on " + std::string(texturePath));
-			LoadTexture(m_width, m_height, m_nrChannels, "Core/Assets/Textures/missing_texture.jpg");
+			ZERO_CORE_LOG_WARN("Texture missing on: {0}", texturePath);
+			LoadTexture(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
 		}
 		glGenTextures(1, &m_id);
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		SetPixelStoreAlignment(m_width);
 		SetTextureParameters(GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR);
-		if(m_nrChannels==4)
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA,
+		switch (m_nrChannels)
+		{
+		case 1:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_RED,
 				GL_UNSIGNED_BYTE, m_data);
-		else
+			break;
+			//case 2:
+				//glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_R8,
+					//GL_UNSIGNED_BYTE, m_data);
+		case 3:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_width, m_height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, m_data);
+			break;
+		case 4:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, m_data);
+			break;
+		default:
+			break;
+		}
 		glGenerateMipmap(GL_TEXTURE_2D);
+
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	GLTexture::~GLTexture()
@@ -49,7 +65,8 @@ namespace Zero
 			stbi_image_free(m_data);
 		if (LoadTexture(m_width, m_height, m_nrChannels, texturePath) != 0)
 			// Work in progress
-			glBindTexture(GL_TEXTURE_2D, m_id);
+			;
+		glBindTexture(GL_TEXTURE_2D, m_id);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, m_data);
 	}
 	int GLTexture::LoadTexture(int& width, int& height, int& nrChannels, const char* texturePath)

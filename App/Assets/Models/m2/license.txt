@@ -1,0 +1,11 @@
+Model Information:
+* title:	Glamrock Mangle
+* source:	https://sketchfab.com/3d-models/glamrock-mangle-04a3ee9d5e984038905497e46235a8c2
+* author:	Snatchedwig (https://sketchfab.com/SnatchedWig)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Glamrock Mangle" (https://sketchfab.com/3d-models/glamrock-mangle-04a3ee9d5e984038905497e46235a8c2) by Snatchedwig (https://sketchfab.com/SnatchedWig) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -1,5 +1,5 @@
 #include "Shader.h"
-#include <core/Logger.h>
+#include <Core/Logger.h>
 namespace Zero {
 	Shader::Shader(const char* vertexPath, const char* fragmentPath) {
         // 1. retrieve the vertex/fragment source code from filePath

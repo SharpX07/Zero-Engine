@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include <core/Logger.h>
+#include <Core/Logger.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include <GLFW/glfw3.h>

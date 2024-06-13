@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include <Buffers/AttributeLayout.h>
-#include <Buffers/VAO.h>
-#include <Buffers/VBO.h>
-#include <Buffers/EBO.h>
-#include <GL_graphics/Shader.h>
-#include <GL_graphics/Texture.h>
+#include <GLGraphics/AttributeLayout.h>
+#include <GLGraphics/VAO.h>
+#include <GLGraphics/VBO.h>
+#include <GLGraphics/EBO.h>
+#include <GLGraphics/Shader.h>
+#include <GLGraphics/Texture.h>
 #include <ResourceManagement/Material.h>
 namespace Zero
 {

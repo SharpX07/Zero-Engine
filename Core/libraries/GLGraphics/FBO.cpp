@@ -1,4 +1,4 @@
-#include <Buffers/FBO.h>
+#include <GLGraphics/FBO.h>
 #include <stdexcept>
 namespace Zero
 {

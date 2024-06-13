@@ -1,4 +1,4 @@
-#include <Buffers/VBO.h>
+#include <GLGraphics/VBO.h>
 
 namespace Zero
 {

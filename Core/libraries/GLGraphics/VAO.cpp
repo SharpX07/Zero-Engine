@@ -1,4 +1,4 @@
-#include <Buffers/VAO.h>
+#include <GLGraphics/VAO.h>
 
 namespace Zero
 {

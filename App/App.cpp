@@ -3,19 +3,24 @@
 //#include <imgui_impl_opengl3.h>
 
 #include "app.h"
-#include <GL_graphics/Shader.h>
+#include <GLGraphics/Shader.h>
 #include <glm/ext/matrix_transform.hpp>
-#include <Buffers/AttributeLayout.h>
+#include <GLGraphics/AttributeLayout.h>
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <Modules/ModelReader.h>
 #include <functional>
 #include <Events/KeyEvents.h>
 #include <core/Input.h>
+#include <Scene/Scene.h>
+#include <Scene/Entity.h>
+#include <Scene/Components.h>
+#include <Modules/CameraUpdater.h>
 namespace Zero
 {
 	Game::Game()
 	{
+		newScene = nullptr;
 		m_Logger.initialize();
 		Resolution_ = glm::uvec2(800, 600);
 		this->Time_ = 0.0f;
@@ -23,9 +28,12 @@ namespace Zero
 		m_Window.SetEventCallback(std::bind(&Game::OnEvent, this, std::placeholders::_1));
 		m_Window.Create(Resolution_.x, Resolution_.y, "Zero Engine");
 		if (!m_Window.InitializeGLAD())
-			ZERO_CORE_LOG_CRITICAL("No se pudo inicializar GLAD");
-		m_RenderModule.SetViewport(0, 0, 800, 600);
-		m_RenderModule.InitializeRenderer();
+			ZERO_CORE_LOG_CRITICAL("No se pudo inicializar GLAD")
+			Renderer::SetViewport(0, 0, 800, 600);
+		Renderer::InitializeRenderer();
+		Renderer::EnableCapability(GL_DEPTH_TEST);
+		Renderer::EnableCapability(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	GLFWwindow* Game::GetGlfwWindow()
@@ -35,78 +43,58 @@ namespace Zero
 
 	void Game::OnEvent(Event& e)
 	{
-		ZERO_APP_LOG_INFO("{0}", e.ToString());
+		switch (e.GetEventType())
+		{
+		case EventType::WindowResized:
+			auto camera = newScene->GetPrincipalCamera();
+			newScene->GetRegistry().get<CameraComponent>(camera).camera.SetViewportSize(m_Window.GetWidth(), m_Window.GetHeight());
+			break;
+		}
 	}
 
 	void Game::Run()
 	{
 		// Render Configurations
-		
-		m_RenderModule.EnableCapability(GL_DEPTH_TEST);
-		m_RenderModule.EnableCapability(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		Zero::ModelImporter ModelImporter;
-		Model* modelo = ModelImporter.loadModel("Assets/Models/m2/scene.gltf");
-		Zero::Shader shader("Assets/shaders/ModelVertex.glsl", "Assets/shaders/ModelFragment.glsl");
-		Model* floor = ModelImporter.loadModel("Assets/Models/plano.gltf");
-		Zero::Shader shaderFloor("Assets/shaders/vertex.glsl", "Assets/shaders/fragment.glsl");
-		shader.Use();
-		shader.setInt("ourTexture", 0);
-		shader.setInt("ourTexture2", 1);
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0, -15, -50));
-		float ns = 0;
-		float movex = 0, movey = 0, movez = 0;
+		newScene = new Scene();
+		Entity Modelo = newScene->CreateEntity();
+		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(3.14, 0, 0), glm::vec3(0.3, 0.3, 0.3));
+
+		auto modelMs = ModelImporter.loadModel("Assets/Models/m2/scene.gltf");
+		Modelo.AddComponent<MeshComponent>(*modelMs);
+		Shader shader("Assets/shaders/ModelVertex.glsl", "Assets/shaders/ModelFragment.glsl");
+		Modelo.AddComponent<ShaderComponent>(shader);
+
+		Entity Floor = newScene->CreateEntity();
+		Floor.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(3.14, 0, 0), glm::vec3(100));
+		auto floorMs = ModelImporter.loadModel("Assets/Models/plano.gltf");
+		Floor.AddComponent<MeshComponent>(*floorMs);
+		Shader shaderFloor("Assets/shaders/vertex.glsl", "Assets/shaders/fragment.glsl");
+		Floor.AddComponent<ShaderComponent>(shaderFloor);
+
+		Entity Camera = newScene->CreateEntity();
+		SceneCamera newCamera = SceneCamera(glm::mat4(0.0f), glm::mat4(0.0f));
+		newCamera.SetPerspectiveProjection((float)glm::radians(45.0f), 0.1, 5000.0);
+		newCamera.SetViewportSize(800, 600);
+		newCamera.CalculateProjection();
+
+		Camera.AddComponent<CameraComponent>(newCamera);
+		Camera.AddComponent<TransformComponent>(glm::vec3(0, 0, -30), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 		while (!m_Window.ShouldClose()) {
-			//Variables de uso general
 			Time_ = glfwGetTime();
-			// Procesar entrada
-			// Limpiar el fondo
-				m_RenderModule.Clear({ 0,0,0,255 });
-			
+			Renderer::Clear({ 0,0,0,255 });
+			CameraSystem::UpdateCameras(*newScene);
 
-			//codigo que usar movex,movey,movez para mover laca visión
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::rotate(model, glm::radians((float)Time_ * 0),
-				glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::rotate(model, glm::radians((float)180),
-				glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(100));
-			// note that we’re translating the scene in the reverse direction
-			ns += (float)cos(Time_) / 1000;
-			view = glm::lookAt(glm::vec3(100 * sin(Time_), 100, 100 * cos(Time_)), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+			TransformComponent tempCameraTransform = Camera.GetComponent<TransformComponent>();
 
-			glm::mat4 projection(1.0f);
-			projection = glm::perspective(glm::radians(45.0f), (float)Resolution_.x / (float)Resolution_.y, 0.1f, 5000.0f);
-			shaderFloor.Use();
-			shaderFloor.setFloat("uTime", (float)Time_);
-			shaderFloor.setMat4("model", model);
-			shaderFloor.setMat4("projection", projection);
-			shaderFloor.setMat4("view", view);
+			tempCameraTransform.Translation = glm::vec3(0, sin(Time_) * 10, -20);
+			Camera.AddOrReplaceComponent<TransformComponent>(tempCameraTransform.Translation, tempCameraTransform.Rotation, tempCameraTransform.Scale);
+			newScene->SetPrincipalCamera(Camera);
 
-			shader.Use();
-			model = glm::mat4(1.0f);
-			model = glm::rotate(model, glm::radians((float)Time_ * 0),
-				glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(0.3, 0.3, 0.3));
-			
-			model = glm::translate(model, glm::vec3(0, 0, sin(Time_ * 0.432) * 20));
+			TransformComponent tc = Modelo.GetComponent<TransformComponent>();
+			Modelo.AddOrReplaceComponent<TransformComponent>(tc.Translation, tc.Rotation + glm::vec3(0.1, 0, 0), tc.Scale);
 
-			if (Input::KeyPressed(KeyCode(Key::KEY_W)))
-			{
-			}
-			shader.setFloat("uTime", (float)Time_);
-			shader.setMat4("model", model);
-			shader.setMat4("projection", projection);
-			shader.setMat4("view", view);
-
-
-			// Dibujar el triángulo
-			shaderFloor.Use();
-			m_RenderModule.Render(*floor, shaderFloor);
-			shader.Use();
-			m_RenderModule.Render(*modelo, shader);
+			Renderer::Render(*newScene);
 			m_Window.Update();
 
 			int x, y;

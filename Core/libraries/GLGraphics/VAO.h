@@ -1,7 +1,7 @@
 #pragma once
 #include <glad/glad.h>
-#include <Buffers/VBO.h>
-#include <Buffers/AttributeLayout.h>
+#include <GLGraphics/VBO.h>
+#include <GLGraphics/AttributeLayout.h>
 
 namespace Zero
 {

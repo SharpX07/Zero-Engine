@@ -2,6 +2,8 @@
 #include <glad/glad.h>
 #include <ResourceManagement/Mesh.h>
 #include <ResourceManagement/Model.h>
+#include <Scene/Scene.h>
+
 namespace Zero
 {
 	class Renderer
@@ -16,20 +18,21 @@ namespace Zero
 
 		~Renderer() = default;
 
-		inline const void SetViewport(GLint x, GLint y, GLsizei w, GLsizei h) const
+		inline static const void SetViewport(GLint x, GLint y, GLsizei w, GLsizei h)
 		{
 			glViewport(x, y, w, h);
 		};
 
-		inline const void Clear(Color c) const
+		inline static const void Clear(Color c)
 		{
 			glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-		inline const void EnableCapability(GLenum capability) const { glEnable(capability); }
-		void Render(Model& model, Shader& shader);
-		std::unique_ptr<GLTexture> noTextureSample;
-		void InitializeRenderer();
+		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
+		static void Render(Model& model, Shader& shader);
+		static void Render(Scene& scene);
+		static void InitializeRenderer();
+		GLTexture noTextureSample = GLTexture("Assets/Core/Textures/missing_texture.jpg");
 	};
 
 

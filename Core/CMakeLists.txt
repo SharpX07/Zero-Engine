@@ -9,12 +9,14 @@ file(GLOB LIBRARIES_SOURCES
     "libraries/*.cpp" 
     "libraries/Debug/*.cpp"
     "libraries/Buffers/*.cpp"
-    "libraries/GL_graphics/*.cpp"
+    "libraries/GLGraphics/*.cpp"
     "libraries/ECS/*.cpp"
-    "libraries/core/*.cpp"
+    "libraries/Core/*.cpp"
     "libraries/ResourceManagement/*.cpp"
     "libraries/Modules/*.cpp"
     "libraries/Events/*.cpp"
+    "libraries/Scene/*.cpp"
+    
 )
 
 # Find external libraries

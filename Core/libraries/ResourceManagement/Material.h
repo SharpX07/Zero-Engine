@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <GL_graphics/Texture.h>
+#include <GLGraphics/Texture.h>
 
 namespace Zero
 {

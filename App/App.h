@@ -2,15 +2,15 @@
 #define GLFW_INCLUDE_NONE
 #include <iostream>
 #include <glad/glad.h>
-#include <Buffers/VBO.h>
-#include <Buffers/VAO.h>
-#include <Buffers/EBO.h>
+#include <GLGraphics/VBO.h>
+#include <GLGraphics/VAO.h>
+#include <GLGraphics/EBO.h>
 #include <ResourceManagement/Mesh.h>
 #include <glm/glm.hpp>
 #include <Modules/Renderer.h>
-#include <core/Logger.h>
-#include <core/Application.h>
-#include <core/Window.h>
+#include <Core/Logger.h>
+#include <Core/Application.h>
+#include <Core/Window.h>
 
 namespace Zero
 {
@@ -30,7 +30,7 @@ namespace Zero
 		void OnEvent(Event& e);
 	private:
 		Zero::Window m_Window;
-		Zero::Renderer m_RenderModule;
 		Zero::Log m_Logger;
+		Scene* newScene;
 	};
 }

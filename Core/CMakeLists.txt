@@ -5,18 +5,8 @@ include(FetchContent)
 
 
 # Libraries
-file(GLOB LIBRARIES_SOURCES 
-    "libraries/*.cpp" 
-    "libraries/Debug/*.cpp"
-    "libraries/Buffers/*.cpp"
-    "libraries/GLGraphics/*.cpp"
-    "libraries/ECS/*.cpp"
-    "libraries/Core/*.cpp"
-    "libraries/ResourceManagement/*.cpp"
-    "libraries/Modules/*.cpp"
-    "libraries/Events/*.cpp"
-    "libraries/Scene/*.cpp"
-    
+file(GLOB_RECURSE LIBRARIES_SOURCES 
+    "libraries/*.cpp"
 )
 
 # Find external libraries

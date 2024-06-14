@@ -35,7 +35,7 @@ namespace Zero
 
 	struct MeshComponent
 	{
-		Model& ptr_Model;
+		std::shared_ptr<Model> ptr_Model;
 	};
 
 	struct ShaderComponent

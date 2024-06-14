@@ -1,0 +1,8 @@
+Model Information:
+* title:	Stylized Packaging - Default Cube
+* source:	https://sketchfab.com/3d-models/stylized-packaging-default-cube-51797b03056b4641a35a66e7c9232f16
+* author:	a-python-script (https://sketchfab.com/a-python-script)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

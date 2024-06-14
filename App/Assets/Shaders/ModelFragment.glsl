@@ -19,5 +19,8 @@ void main() {
             
     vec3 result = (ambient + diffuse);
     FragColor = vec4(result, 1.0)*texture(ourTexture, TexCoord).rgba;
+    if(FragColor.a==0.0){
+    discard;
+    }
 }
 

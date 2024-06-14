@@ -24,7 +24,17 @@ namespace Zero
 
 	void SceneCamera::CalculateView(glm::mat4& transform)
 	{
-		m_View = glm::inverse(transform);
+		// Extraer la posición de la cámara de la matriz de transformación
+		glm::vec3 eye = glm::vec3(transform[3]);
+
+		// Definir el punto al que la cámara está mirando (por ejemplo, hacia adelante desde la posición de la cámara)
+		glm::vec3 forward = glm::normalize(glm::vec3(transform[2]));  // La dirección hacia adelante es la tercera columna
+		glm::vec3 center = eye - forward; // La cámara mira en la dirección opuesta al "forward"
+
+		// Definir el vector "arriba" del mundo (esto depende de tu configuración, generalmente es el eje Y)
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+		// Calcular la matriz de vista usando glm::lookAt
+		m_View = glm::lookAt(eye, glm::vec3(0,0,0), up);
 	}
 
 	glm::mat4 SceneCamera::perspective(float fovy, float aspect, float zNear, float zFar)

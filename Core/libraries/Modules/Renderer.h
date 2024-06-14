@@ -3,6 +3,8 @@
 #include <ResourceManagement/Mesh.h>
 #include <ResourceManagement/Model.h>
 #include <Scene/Scene.h>
+#include <Core/Logger.h>
+#include <Editor/EditorCamera.h>
 
 namespace Zero
 {
@@ -30,9 +32,11 @@ namespace Zero
 		}
 		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
 		static void Render(Model& model, Shader& shader);
-		static void Render(Scene& scene);
+		static void RenderOnRuntime(Scene& scene);
+		static void RenderOnEditor(Scene& scene, EditorCamera& editorCamera);
+		static void Render(Shader& shader);
 		static void InitializeRenderer();
-		GLTexture noTextureSample = GLTexture("Assets/Core/Textures/missing_texture.jpg");
+		//static GLTexture noTextureSample;
 	};
 
 

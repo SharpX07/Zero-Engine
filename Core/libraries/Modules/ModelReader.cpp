@@ -7,14 +7,15 @@
 #include <iostream>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
+#include <Core/Logger.h>
 namespace Zero
 {
 
-	Model* ModelImporter::loadModel(const char* _modelPath)
+	std::shared_ptr<Model> ModelImporter::loadModel(const char* _modelPath)
 	{
 
 		Assimp::Importer importer;
-		Model* newModel = new Model();
+		std::shared_ptr<Model> newModel = std::make_shared<Model>();
 		const aiScene* scene = importer.ReadFile(_modelPath,
 			aiProcess_Triangulate |
 			aiProcess_FlipUVs |
@@ -22,7 +23,7 @@ namespace Zero
 			aiProcess_JoinIdenticalVertices);
 
 		if (!scene) {
-			std::cerr << "Error al cargar el modelo: " << importer.GetErrorString() << std::endl;
+			ZERO_APP_LOG_ERROR(importer.GetErrorString())
 			return NULL;
 		}
 		std::string convertedPath(_modelPath);
@@ -34,7 +35,7 @@ namespace Zero
 		return newModel;
 	}
 
-	void ModelImporter::LoadModelMaterials(const aiScene* scene, Model* model)
+	void ModelImporter::LoadModelMaterials(const aiScene* scene, std::shared_ptr<Model> model)
 	{
 		for (int i = 0; i < scene->mNumMaterials; i++)
 		{
@@ -48,7 +49,7 @@ namespace Zero
 		}
 	}
 
-	void ModelImporter::ExploreNode(aiNode* node, const aiScene* scene, Model* model, glm::mat4 mTrasformation)
+	void ModelImporter::ExploreNode(aiNode* node, const aiScene* scene, std::shared_ptr<Model> model, glm::mat4 mTrasformation)
 	{
 		glm::mat4 matrixTransformation = mTrasformation;
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -64,7 +65,7 @@ namespace Zero
 		}
 	}
 
-	Mesh ModelImporter::loadMesh(aiMesh* mesh, const aiScene* scene, Model* model, glm::mat4& mat)
+	Mesh ModelImporter::loadMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Model> model, glm::mat4& mat)
 	{
 
 		std::vector<mesh::MeshVertex> vertices;
@@ -98,7 +99,7 @@ namespace Zero
 		return Mesh(vertices, indices, model->GetMaterials().at(mesh->mMaterialIndex));
 	}
 
-	std::vector<MeshTexture> ModelImporter::LoadMaterialTextures(aiMaterial* mat, const Model* model)
+	std::vector<MeshTexture> ModelImporter::LoadMaterialTextures(aiMaterial* mat, const std::shared_ptr<Model> model)
 	{
 
 		std::vector<MeshTexture> textures;

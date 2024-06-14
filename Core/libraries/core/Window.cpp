@@ -19,7 +19,7 @@ namespace Zero {
 			ZERO_CORE_LOG_CRITICAL("No se pudo inicializar GLFW");
 			exit(EXIT_FAILURE);
 		}
-
+		ZERO_CORE_LOG_INFO("Window initialized successfully")
 		// Set GLFW window hints
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -37,6 +37,7 @@ namespace Zero {
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
+		ZERO_CORE_LOG_INFO("New window created: ( {0}, {1}, {2} )",title,width,height)
 		glfwSetWindowUserPointer(glfwWindowHandle, &m_Data);
 		glfwMakeContextCurrent(glfwWindowHandle);
 

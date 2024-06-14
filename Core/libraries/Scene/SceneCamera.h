@@ -20,7 +20,7 @@ namespace Zero
 		glm::mat4 GetProjection() override { return m_Projection; }
 		void SetProjection(const glm::mat4& projection) { m_Projection = projection; }
 		glm::mat4 GetView() override { return m_View; }
-		void SetView(const glm::mat4& view) { m_View = view; }
+		void SetView(const glm::mat4& view) { m_View = view; CalculateView(m_View); }
 
 		
 		glm::mat4 perspective(float fovy, float aspect, float zNear,

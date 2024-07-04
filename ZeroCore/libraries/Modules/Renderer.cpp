@@ -60,7 +60,7 @@ namespace Zero
 
 	void Renderer::RenderOnEditor(Scene& scene, EditorCamera& editorCamera)
 	{
-		static GLTexture noTextureSample("Assets/Textures/sm.png"); // Variable estática local
+		static GLTexture noTextureSample("Assets/Textures/sm.png"); // Textura estática en el renderizador
 
 		auto view = scene.GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
 		for (auto entity : view)
@@ -101,6 +101,8 @@ namespace Zero
 	{
 		//noTextureSample = GLTexture("Assets/Core/Textures/missing_texture.jpg");
 		//noTextureSample = std::make_unique<GLTexture>("Assets/Core/Textures/missing_texture.jpg");
-		ZERO_CORE_LOG_INFO("Cargando Textura Predefinida");
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+		ZERO_CORE_LOG_INFO("Loading default texture");
 	}
 }

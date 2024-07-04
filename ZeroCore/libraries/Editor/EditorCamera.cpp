@@ -26,12 +26,16 @@ namespace Zero
 		glm::vec2 delta;
 		static float phi = 0;
 		static float theta = 0;
+		static float yaw = 0;
+		static float pitch = 0;
 		currentMousePos = Input::GetMousePosition();
 		delta = currentMousePos - m_LastMousePosition;
 		m_LastMousePosition = currentMousePos;
-		if(Input::MouseScrolled())
+		
+		if (Input::MouseScrolled())
 		{
-			m_OrbitRadius -= Input::GetMouseScrollDelta();
+			auto scrollValue = Input::GetMouseScrollDelta();
+			m_OrbitRadius -= scrollValue*(m_OrbitRadius/10);
 			theta -= glm::radians(delta.x * m_MouseSensitivity);
 			phi += glm::radians(delta.y * m_MouseSensitivity);
 
@@ -48,12 +52,23 @@ namespace Zero
 		{
 			if (m_CameraState == CameraState::FREE_CAMERA)
 			{
-				m_Rotation.y += delta.x * m_MouseSensitivity;
-				m_Rotation.x += delta.y * m_MouseSensitivity;
+				yaw += delta.x * 0.3;
+				pitch -= delta.y * 0.3;
+
+				if (pitch > 89.0f)
+					pitch = 89.0f;
+				if (pitch < -89.0f)
+					pitch = -89.0f;
+				glm::vec3 direction;
+				direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+				direction.y = sin(glm::radians(pitch));
+				direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+				m_Front = glm::normalize(direction);
+				m_Right = glm::normalize(glm::cross(m_Front, glm::vec3(0, 1, 0)));
 			}
 			else
 			{
-				
+
 				theta -= glm::radians(delta.x * m_MouseSensitivity);
 				phi += glm::radians(delta.y * m_MouseSensitivity);
 
@@ -77,16 +92,19 @@ namespace Zero
 		float moveAmount = m_MoveSpeed * deltaTime;
 
 		if (Input::KeyPressed(KeyCode(Key::KEY_W)))
-			m_Position += glm::vec3(0.0f, 0.0f, -1.0f) * moveAmount;
+			m_Position += m_Front * moveAmount;
 		if (Input::KeyPressed(KeyCode(Key::KEY_S)))
-			m_Position += glm::vec3(0.0f, 0.0f, 1.0f) * moveAmount;
+			m_Position -= m_Front * moveAmount;
 		if (Input::KeyPressed(KeyCode(Key::KEY_A)))
-			m_Position += glm::vec3(-1.0f, 0.0f, 0.0f) * moveAmount;
+			m_Position -= m_Right * moveAmount;
 		if (Input::KeyPressed(KeyCode(Key::KEY_D)))
-			m_Position += glm::vec3(1.0f, 0.0f, 0.0f) * moveAmount;
+			m_Position += m_Right * moveAmount;
 
-		if (Input::KeyPressed(KeyCode(Key::SPACE)))
+		//if (Input::KeyUp(KeyCode(Key::SPACE)))
+			//ZERO_CORE_LOG_DEBUG("ESPACIO SOLTADO!");
+		if (Input::KeyDown(KeyCode(Key::SPACE)))
 		{
+			ZERO_CORE_LOG_DEBUG("ESPACIO PRESIONADO!");
 			m_CameraState = (m_CameraState == CameraState::FREE_CAMERA) ? CameraState::ORBIT_CAMERA : CameraState::FREE_CAMERA;
 		}
 	}
@@ -102,13 +120,10 @@ namespace Zero
 	{
 		if (m_CameraState == CameraState::FREE_CAMERA)
 		{
-			glm::mat4 transform = glm::mat4(1.0f);
-			transform = glm::translate(transform, m_Position);
-			transform = glm::rotate(transform, m_Rotation.x, glm::vec3(1, 0, 0));
-			transform = glm::rotate(transform, m_Rotation.y, glm::vec3(0, 1, 0));
-			transform = glm::rotate(transform, m_Rotation.z, glm::vec3(0, 0, 1));
 
-			m_View = glm::inverse(transform);
+			glm::vec3 view = m_Position + m_Front;
+
+			m_View = glm::lookAt(m_Position, view, glm::vec3(0, 1, 0));
 		}
 		else
 		{

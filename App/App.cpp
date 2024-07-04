@@ -31,15 +31,11 @@ namespace Zero
 		m_Window.Initialize();
 		m_Window.SetEventCallback(std::bind(&Game::OnEvent, this, std::placeholders::_1));
 		m_Window.Create(Resolution_.x, Resolution_.y, "Zero Engine");
-
-		ZERO_ASSERT(CRITICAL, m_Window.InitializeGLAD(), "No se pudo inicializar GLAD");
-		ZERO_CORE_LOG_INFO("Glad initialized successfully");
+		m_Window.InitializeGLAD();
 		Renderer::SetViewport(0, 0, 800, 800);
 		Renderer::InitializeRenderer();
 		Renderer::EnableCapability(GL_DEPTH_TEST);
 		Renderer::EnableCapability(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 
 	GLFWwindow* Game::GetGlfwWindow()
@@ -49,15 +45,9 @@ namespace Zero
 
 	void Game::OnEvent(Event& e)
 	{
-
+		Input::OnEvent(e);
 		switch (e.GetEventType())
 		{
-		case EventType::MouseScrolled:
-		{
-			auto& scrolledEvent = dynamic_cast<MouseScrolledEvent&>(e);
-			Input::SetMouseScrollDelta(scrolledEvent.GetYOffset());
-			break;
-		}
 		case EventType::WindowResized:
 		{
 			auto camera = newScene->GetPrincipalCamera();
@@ -77,7 +67,7 @@ namespace Zero
 		Zero::ModelImporter ModelImporter;
 		newScene = new Scene();
 		Entity Modelo = newScene->CreateEntity();
-		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(3.14/2, 0, 0), glm::vec3(0.01f));
+		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(3.14 / 2, 0, 0), glm::vec3(0.01f));
 
 		auto modelMs = ModelImporter.loadModel("Assets/Models/m2/scene.gltf");
 		Modelo.AddComponent<MeshComponent>(modelMs);

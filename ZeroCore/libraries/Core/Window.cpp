@@ -4,6 +4,7 @@
 #include <Events/KeyEvents.h>
 #include <Events/MouseEvents.h>
 #include <Events/WindowEvents.h>
+#include <Core/Assert.h>
 
 namespace Zero {
 
@@ -118,7 +119,10 @@ namespace Zero {
 	}
 	bool Window::InitializeGLAD()
 	{
-		return gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		ZERO_ASSERT(CRITICAL, gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "No se pudo inicializar GLAD");
+		ZERO_CORE_LOG_INFO("Glad initialized successfully");
+
+		return true;
 	}
 	void Window::Update() {
 		glfwSwapBuffers(glfwWindowHandle);

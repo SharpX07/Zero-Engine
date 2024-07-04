@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required (VERSION 3.5)
 set(CMAKE_CXX_STANDARD 17)
 project (Zero_engine)
-add_subdirectory(Core)
+add_subdirectory(ZeroCore)
 add_subdirectory(App)

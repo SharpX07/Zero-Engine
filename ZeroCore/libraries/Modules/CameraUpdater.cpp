@@ -9,8 +9,8 @@ namespace Zero
 		{
 			CameraComponent& camera = view.get<CameraComponent>(entity);
 			TransformComponent& transform = view.get<TransformComponent>(entity);
-			camera.camera.SetView(transform.GetTransform());
-
+			camera.camera->SetView(transform.GetTransform());
+			camera.camera->SetFOV(glm::radians(camera.Fov));
 		}
 	}
 }

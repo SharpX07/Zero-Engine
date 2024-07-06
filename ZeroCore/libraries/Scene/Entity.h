@@ -8,7 +8,8 @@ namespace Zero
 	public:
 		Entity();
 		Entity(entt::entity handler, Scene* scene);
-		
+		bool IsValid() { return m_EntityHandler != entt::null; }
+		Scene* GetScene() { return m_Scene; }
 		template<typename T, typename... Args>
 		void AddComponent(Args&&... args)
 		{
@@ -34,6 +35,9 @@ namespace Zero
 		{
 			return m_Scene->m_Registry.all_of<T>(m_EntityHandler);
 		}
+		
+		operator bool() const { return m_EntityHandler != entt::null; }
+
 	private:
 		entt::entity m_EntityHandler{ entt::null };
 		Scene* m_Scene = nullptr;

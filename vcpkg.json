@@ -1,5 +1,14 @@
 {
   "dependencies": [
+    {
+      "name": "imgui",
+      "version>=": "1.90.6",
+      "features": [
+        "glfw-binding",
+        "opengl3-binding",
+        "docking-experimental"
+      ]
+    },
     "assimp",
     "glfw3",
     "glm",

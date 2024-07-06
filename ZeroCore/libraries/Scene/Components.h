@@ -4,9 +4,30 @@
 #include <glm/gtc/quaternion.hpp>
 #include "SceneCamera.h"
 #include <ResourceManagement/Model.h>
+#include <Core/Aliases.h>
 
 namespace Zero
 {
+	struct IDComponent
+	{
+		std::string Tag;
+
+		IDComponent() = default;
+		IDComponent(const IDComponent&) = default;
+		IDComponent(const std::string& tag)
+			: Tag(tag) {}
+	};
+
+	struct TagComponent
+	{
+		std::string Tag;
+
+		TagComponent() = default;
+		TagComponent(const TagComponent&) = default;
+		TagComponent(const std::string& tag)
+			: Tag(tag) {}
+	};
+
 	struct TransformComponent
 	{
 		glm::vec3 Translation;
@@ -19,8 +40,8 @@ namespace Zero
 			glm::mat4 rotation = glm::mat4(glm::quat(Rotation));
 
 			return glm::translate(glm::mat4(1.0f), Translation)
-				* rotation
-				* glm::scale(glm::mat4(1.0f), Scale);
+				* glm::scale(glm::mat4(1.0f), Scale)
+				* rotation;
 		}
 	};
 
@@ -28,7 +49,9 @@ namespace Zero
 
 	struct CameraComponent
 	{
-		SceneCamera camera;
+		Ref<SceneCamera> camera;
+		glm::vec4 Color{ 0,0,0,0 };
+		float Fov = 90;
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 	};
@@ -36,6 +59,7 @@ namespace Zero
 	struct MeshComponent
 	{
 		std::shared_ptr<Model> ptr_Model;
+
 	};
 
 	struct ShaderComponent

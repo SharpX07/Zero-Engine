@@ -111,7 +111,9 @@ namespace Zero
 
 	void EditorCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-		ZERO_ASSERT(ERROR, width > 0 && height > 0, "Viewport incorrecto para la camara");
+		//ZERO_ASSERT(ERROR, width > 0 && height > 0, "Viewport incorrecto para la camara");
+		if (!(width > 0 && height > 0))
+			return;
 		m_Aspect = (float)width / (float)height;
 		CalculateProjection();
 	}

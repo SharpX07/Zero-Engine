@@ -1,8 +1,5 @@
-﻿project(core_folder)
+﻿project(ZeroCore)
 include(FetchContent)
-
-
-
 
 # Libraries
 file(GLOB_RECURSE LIBRARIES_SOURCES 
@@ -14,8 +11,8 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
-#find_package(imgui REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 add_subdirectory(external/glad)
 add_subdirectory(external/stb)
@@ -38,7 +35,7 @@ target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog
     assimp::assimp
     EnTT::EnTT
-    #imgui
+    imgui::imgui
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ZERO_CORE_LOGGER_ACTIVATE)

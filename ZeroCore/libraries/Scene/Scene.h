@@ -14,6 +14,8 @@ namespace Zero
 		Entity CreateEntity();
 		template<typename... Components>
 		auto GetAllEntitiesWith() { return m_Registry.view<Components...>(); }
+		auto GetAllEntities() { return m_Registry.view<entt::entity>(); }
+		Entity GetEntityByID(entt::entity entity);
 		entt::registry& GetRegistry() { return m_Registry; }
 		void RenderScene();
 		void SetPrincipalCamera(Entity& camera);

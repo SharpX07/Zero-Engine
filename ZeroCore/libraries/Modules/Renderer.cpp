@@ -3,6 +3,7 @@
 #include <Scene/Scene.h>
 #include <Scene/Components.h>
 #include <Editor/EditorCamera.h>
+#include <Core/Logger.h>
 namespace Zero
 {
 
@@ -26,7 +27,9 @@ namespace Zero
 	void Renderer::RenderOnRuntime(Scene& scene)
 	{
 		static GLTexture noTextureSample("Assets/Textures/sm.png"); // Variable estática local
-
+		// TODO: This would be a principal camera
+		CameraComponent& camera = scene.GetRegistry().get<CameraComponent>(scene.GetPrincipalCamera());
+		Renderer::Clear({ camera.Color.r*255.0f ,camera.Color.g * 255.0f ,camera.Color.b * 255.0f ,camera.Color.a * 255.0f });
 		auto view = scene.GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
 		for (auto entity : view)
 		{
@@ -35,11 +38,11 @@ namespace Zero
 			if (!model.ptr_Model) return;
 
 			ShaderComponent& shader = view.get<ShaderComponent>(entity);
-			SceneCamera& camera = scene.GetRegistry().get<CameraComponent>(scene.GetPrincipalCamera()).camera;
+			
 			shader.Shader.Use();
 			shader.Shader.setMat4("model", transform.GetTransform());
-			shader.Shader.setMat4("projection", camera.GetProjection());
-			shader.Shader.setMat4("view", camera.GetView());
+			shader.Shader.setMat4("projection", camera.camera->GetProjection());
+			shader.Shader.setMat4("view", camera.camera->GetView());
 
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 				noTextureSample.Bind(0);

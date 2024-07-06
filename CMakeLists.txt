@@ -2,4 +2,5 @@
 set(CMAKE_CXX_STANDARD 17)
 project (Zero_engine)
 add_subdirectory(ZeroCore)
+add_subdirectory(ZeroStudio)
 add_subdirectory(App)

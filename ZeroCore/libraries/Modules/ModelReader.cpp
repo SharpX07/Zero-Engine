@@ -26,8 +26,7 @@ namespace Zero
 			ZERO_APP_LOG_ERROR(importer.GetErrorString())
 			return NULL;
 		}
-		std::string convertedPath(_modelPath);
-		newModel->SetPath(convertedPath.substr(0, convertedPath.find_last_of("/\\")));
+		newModel->SetPath(_modelPath);
 
 		LoadModelMaterials(scene, newModel);
 		ExploreNode(scene->mRootNode, scene, newModel, AssimpToGLM(scene->mRootNode->mTransformation));
@@ -109,7 +108,10 @@ namespace Zero
 				MeshTexture texture;
 				aiString str;
 				mat->GetTexture(textureType, i, &str);
-				texture.Path = model->GetPath() + "/" + std::string(str.C_Str());
+				std::string convertedPath(model->GetPath());
+
+				texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(str.C_Str());
+
 				texture.Type = meshTextureType;
 				std::shared_ptr<GLTexture> sameGLTexture = nullptr;
 				for (auto const& meshTexture : m_MeshTexturesLoaded)

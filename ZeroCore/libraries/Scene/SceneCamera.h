@@ -22,15 +22,16 @@ namespace Zero
 		glm::mat4 GetView() override { return m_View; }
 		void SetView(const glm::mat4& view) { m_View = view; CalculateView(m_View); }
 
-		
+		void SetFOV(float fov) { m_PerspectiveFOV = fov; };
 		glm::mat4 perspective(float fovy, float aspect, float zNear,
 			float zFar);
 
+		float GetAspect() { return m_Aspect; }
 	private:
 		glm::mat4 m_Projection;
 		glm::mat4 m_View;
 		float m_Aspect;
-		
+
 		float m_PerspectiveFOV = glm::radians(45.0f);
 		float m_PerspectiveNear = 0.01f, m_PerspectiveFar = 1000.0f;
 

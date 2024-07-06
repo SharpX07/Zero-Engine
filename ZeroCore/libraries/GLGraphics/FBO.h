@@ -11,7 +11,8 @@ namespace Zero
 
 		void Bind() const;
 		void UnBind() const;
-
+		int GetColorTexture() const { return colorTextureId_; }
+		void RescaleFramebuffer(float width, float height);
 	private:
 		void CreateColorAttachment(int width, int height);
 		void CreateDepthAttachment(int width, int height);

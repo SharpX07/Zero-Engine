@@ -5,6 +5,7 @@
 #include <Scene/Scene.h>
 #include <Core/Logger.h>
 #include <Editor/EditorCamera.h>
+#include <Core/Aliases.h>
 
 namespace Zero
 {
@@ -33,7 +34,7 @@ namespace Zero
 		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
 		static void Render(Model& model, Shader& shader);
 		static void RenderOnRuntime(Scene& scene);
-		static void RenderOnEditor(Scene& scene, EditorCamera& editorCamera);
+		static void RenderOnEditor(Ref<Scene> secene, EditorCamera& editorCamera);
 		static void Render(Shader& shader);
 		static void InitializeRenderer();
 		//static GLTexture noTextureSample;

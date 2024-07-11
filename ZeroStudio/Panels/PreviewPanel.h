@@ -3,9 +3,10 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-#include <Scene/Entity.h>
+#include <Scene/Scene.h>
 #include <string>
 #include <GLGraphics/FBO.h>
+#include <Core/Aliases.h>
 namespace Zero
 {
 	class PreviewPanel
@@ -13,9 +14,9 @@ namespace Zero
 	public:
 		PreviewPanel() = default;
 		void OnRender();
-		void SetCameraFocus(Entity& entity);
+		void SetSceneFocus(Ref<Scene> scene);
 	private:
-		Entity m_SelectedEntity;
+		Ref<Scene> m_FocusedScene;
 		Framebuffer fbo{500,500};
 	};
 }

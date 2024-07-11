@@ -5,17 +5,18 @@
 #include "SceneCamera.h"
 #include <ResourceManagement/Model.h>
 #include <Core/Aliases.h>
+#include <Core/UUID.h>
 
 namespace Zero
 {
 	struct IDComponent
 	{
-		std::string Tag;
+		UUID Id;
 
 		IDComponent() = default;
 		IDComponent(const IDComponent&) = default;
-		IDComponent(const std::string& tag)
-			: Tag(tag) {}
+		IDComponent(const UUID Id)
+			: Id(Id) {}
 	};
 
 	struct TagComponent
@@ -32,7 +33,7 @@ namespace Zero
 	{
 		glm::vec3 Translation;
 		glm::vec3 Rotation;
-		glm::vec3 Scale;
+		glm::vec3 Scale{1.0f};
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 		glm::mat4 GetTransform() const
@@ -47,23 +48,30 @@ namespace Zero
 
 	class SceneCamera;
 
+	enum class ProyectionType
+	{
+		PERSPECTIVE_PROYECTION,
+		ORTHOGONAL_PROYECTION
+	};
+
 	struct CameraComponent
 	{
 		Ref<SceneCamera> camera;
 		glm::vec4 Color{ 0,0,0,0 };
 		float Fov = 90;
-		CameraComponent() = default;
-		CameraComponent(const CameraComponent&) = default;
+		bool IsPrincipalCamera = false;
+
+		//CameraComponent() = default;
+		//CameraComponent(const CameraComponent&) = default;
 	};
 
 	struct MeshComponent
 	{
-		std::shared_ptr<Model> ptr_Model;
-
+		Ref<Model> ptr_Model;
 	};
 
 	struct ShaderComponent
 	{
-		Shader& Shader;
+		Ref<Shader> Shader;
 	};
 }

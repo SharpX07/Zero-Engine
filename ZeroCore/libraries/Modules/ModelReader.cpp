@@ -8,22 +8,23 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 #include <Core/Logger.h>
+#include <Core/UUID.h>
 namespace Zero
 {
-
-	std::shared_ptr<Model> ModelImporter::loadModel(const char* _modelPath)
+	Ref<Model> ModelImporter::loadModel(const char* _modelPath)
 	{
 
 		Assimp::Importer importer;
-		std::shared_ptr<Model> newModel = std::make_shared<Model>();
+		Ref<Model> newModel = std::make_shared<Model>();
 		const aiScene* scene = importer.ReadFile(_modelPath,
 			aiProcess_Triangulate |
 			aiProcess_FlipUVs |
 			aiProcess_GenSmoothNormals |
-			aiProcess_JoinIdenticalVertices);
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_PreTransformVertices);
 
 		if (!scene) {
-			ZERO_APP_LOG_ERROR(importer.GetErrorString())
+			ZERO_APP_LOG_ERROR(importer.GetErrorString());
 			return NULL;
 		}
 		newModel->SetPath(_modelPath);
@@ -34,27 +35,79 @@ namespace Zero
 		return newModel;
 	}
 
-	void ModelImporter::LoadModelMaterials(const aiScene* scene, std::shared_ptr<Model> model)
+	void ModelImporter::LoadModelMaterials(const aiScene* scene, Ref<Model> model)
 	{
 		for (int i = 0; i < scene->mNumMaterials; i++)
 		{
 			aiMaterial* material = scene->mMaterials[i];
 			Material newMaterial;
 			std::vector<MeshTexture> textures;
-			textures = LoadMaterialTextures(material, model);
+			textures = LoadMaterialTextures(material, scene, model);
+			for (auto tex : textures)
+			{
+				if (tex.Type == MeshTextureTypes::DIFFUSE)
+				{
+					auto& properties = newMaterial.GetProperties();
+					properties.hasAlbedoTexture = true;
+				}
+
+			}
 			for (const auto& texture : textures)
 				newMaterial.addTexture(texture);
+			auto& properties = newMaterial.GetProperties();
+
+			// Albedo (Color difuso)
+			aiColor3D albedo;
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, albedo) == AI_SUCCESS) {
+
+				properties.Albedo = glm::vec3(albedo.r, albedo.g, albedo.b);
+			}
+
+			// Metallic
+			float metallic;
+			if (material->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == AI_SUCCESS) {
+				properties.Metallic = metallic;
+			}
+			else {
+				// Si no se encuentra el factor metálico, intentamos con el color especular
+				aiColor3D specular;
+				if (material->Get(AI_MATKEY_COLOR_SPECULAR, specular) == AI_SUCCESS) {
+					properties.Metallic = (specular.r + specular.g + specular.b) / 3.0f;
+				}
+			}
+
+			// Roughness
+			float roughness;
+			if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
+				properties.Roughness = roughness;
+			}
+			else {
+				// Si no se encuentra el factor de rugosidad, intentamos con el brillo
+				float shininess;
+				if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+					// Convertir brillo a rugosidad (esta es una aproximación simple)
+					properties.Roughness = 1.0f - std::sqrt(shininess / 100.0f);
+				}
+			}
+			// Emissive
+			aiColor3D emissive;
+			if (material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS)
+				properties.Emissive = glm::vec3(emissive.r, emissive.g, emissive.b);
+
+			// Opacity
+			float opacity;
+			if (material->Get(AI_MATKEY_OPACITY, opacity) == AI_SUCCESS)
+				properties.Opacity = opacity;
 			model->addMaterial(newMaterial);
 		}
 	}
 
-	void ModelImporter::ExploreNode(aiNode* node, const aiScene* scene, std::shared_ptr<Model> model, glm::mat4 mTrasformation)
+	void ModelImporter::ExploreNode(aiNode* node, const aiScene* scene, Ref<Model> model, glm::mat4 mTrasformation)
 	{
 		glm::mat4 matrixTransformation = mTrasformation;
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
 			model->addMesh(loadMesh(mesh, scene, model, matrixTransformation));
 		}
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -64,20 +117,21 @@ namespace Zero
 		}
 	}
 
-	Mesh ModelImporter::loadMesh(aiMesh* mesh, const aiScene* scene, std::shared_ptr<Model> model, glm::mat4& mat)
+	Mesh ModelImporter::loadMesh(aiMesh* mesh, const aiScene* scene, Ref<Model> model, glm::mat4& mat)
 	{
-
 		std::vector<mesh::MeshVertex> vertices;
 		std::vector<unsigned int> indices;
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
 			mesh::MeshVertex vertex;
-			vertex.Normal = AssimpToGLM(mesh->mNormals[i]);
 			glm::mat3 rotation = glm::mat3(mat);
-			vertex.Normal = rotation * vertex.Normal;
-				vertex.Position = AssimpToGLM(mesh->mVertices[i]);
-			vertex.Position = mat * glm::vec4(AssimpToGLM(mesh->mVertices[i]), 1.0f);
-
+			if (mesh->HasNormals())
+			{
+				vertex.Normal = AssimpToGLM(mesh->mNormals[i]);
+				//vertex.Normal = rotation * vertex.Normal;
+			}
+			vertex.Position = AssimpToGLM(mesh->mVertices[i]);
+			//vertex.Position = mat * glm::vec4(AssimpToGLM(mesh->mVertices[i]), 1.0f);
 			if (mesh->mTextureCoords[0])
 			{
 				glm::vec2 vec;
@@ -98,46 +152,57 @@ namespace Zero
 		return Mesh(vertices, indices, model->GetMaterials().at(mesh->mMaterialIndex));
 	}
 
-	std::vector<MeshTexture> ModelImporter::LoadMaterialTextures(aiMaterial* mat, const std::shared_ptr<Model> model)
+	std::vector<MeshTexture> ModelImporter::LoadMaterialTextures(aiMaterial* mat, const aiScene* scene, const Ref<Model> model)
 	{
-
 		std::vector<MeshTexture> textures;
 		auto loadTexturesOfType = [&](aiTextureType textureType, MeshTextureTypes meshTextureType) {
 			for (unsigned int i = 0; i < mat->GetTextureCount(textureType); i++)
 			{
 				MeshTexture texture;
-				aiString str;
-				mat->GetTexture(textureType, i, &str);
-				std::string convertedPath(model->GetPath());
+				aiString texturePath;
 
-				texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(str.C_Str());
-
-				texture.Type = meshTextureType;
-				std::shared_ptr<GLTexture> sameGLTexture = nullptr;
-				for (auto const& meshTexture : m_MeshTexturesLoaded)
+				bool hasTexture = false;
+				if (mat->GetTexture(textureType, i, &texturePath))
 				{
-					if (meshTexture.Path == texture.Path)
-					{
-						sameGLTexture = meshTexture.GlTexture;
-						break;
-					}
+					hasTexture = true;
+					std::string convertedPath(model->GetPath());
+					texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
+					texture.Type = meshTextureType;
 				}
-				if (sameGLTexture)
-					texture.GlTexture = sameGLTexture;
-				else
+
+
+				auto embeddedTexture = scene->GetEmbeddedTexture(texturePath.C_Str());
+				if (embeddedTexture)
 				{
-					texture.GlTexture = std::make_shared<GLTexture>(texture.Path.c_str());
+					std::string convertedPath(model->GetPath());
+					texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
+					texture.Type = meshTextureType;
+				}
+				// Looking for textures preloaded
+				auto it = std::find_if(m_MeshTexturesLoaded.begin(), m_MeshTexturesLoaded.end(),
+					[&texture](const auto& meshTexture) {
+						return meshTexture.Identifier == texture.Identifier;
+					});
+
+				if (it != m_MeshTexturesLoaded.end())
+					texture.GlTexture = it->GlTexture;
+				else {
+					if (embeddedTexture)
+						texture.GlTexture = std::make_shared<GLTexture>("", true, reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth);
+					else if (hasTexture)
+						texture.GlTexture = std::make_shared<GLTexture>(texture.Path.c_str());
+					texture.Identifier = UUID();
 					m_MeshTexturesLoaded.push_back(texture);
 				}
 				textures.push_back(texture);
 			}
+			return mat->GetTextureCount(textureType);
 			};
 
 		// Cargar texturas de tipo DIFFUSE
 		loadTexturesOfType(aiTextureType_DIFFUSE, MeshTextureTypes::DIFFUSE);
 		// Cargar texturas de tipo NORMALS
 		loadTexturesOfType(aiTextureType_NORMALS, MeshTextureTypes::NORMAL);
-
 		return textures;
 	}
 

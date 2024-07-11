@@ -51,7 +51,7 @@ namespace Zero
 		case EventType::WindowResized:
 		{
 			auto camera = newScene->GetPrincipalCamera();
-			newScene->GetRegistry().get<CameraComponent>(camera).camera.SetViewportSize(m_Window.GetWidth(), m_Window.GetHeight());
+			newScene->GetRegistry().get<CameraComponent>(camera).camera->SetViewportSize(m_Window.GetWidth(), m_Window.GetHeight());
 			auto editor = newScene->GetEditorCamera();
 			editor->SetViewportSize(m_Window.GetWidth(), m_Window.GetHeight());
 			break;
@@ -97,7 +97,7 @@ namespace Zero
 			Renderer::Clear({ 0,0,0,255 });
 			newEditorCamera.Update(0.2f);
 
-			CameraSystem::UpdateCameras(*newScene);
+			//CameraSystem::UpdateCameras(*newScene);
 
 			TransformComponent& tempCameraTransform = Camera.GetComponent<TransformComponent>();
 			tempCameraTransform.Translation = glm::vec3(0, sin(Time_ / 1) * 4, cos(Time_ / 1) * 4);
@@ -106,7 +106,7 @@ namespace Zero
 			TransformComponent& tc = Modelo.GetComponent<TransformComponent>();
 			//tc.Rotation += glm::vec3(0, 0.01, 0);
 			//Renderer::RenderOnRuntime(*newScene);
-			Renderer::RenderOnEditor(*newScene, newEditorCamera);
+			//Renderer::RenderOnEditor(newScene), newEditorCamera);
 			testShader.Use();
 			//testShader.setMat4("view", Camera.GetComponent<CameraComponent>().camera.GetView());
 			//testShader.setMat4("projection", Camera.GetComponent<CameraComponent>().camera.GetProjection());

@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <core/Logger.h>
 #include <Scene/Scene.h>
+#include <Scene/Entity.h>
 #include <Scene/Components.h>
 #include <Editor/EditorCamera.h>
 #include <Core/Logger.h>
@@ -26,9 +27,9 @@ namespace Zero
 
 	void Renderer::RenderOnRuntime(Scene& scene)
 	{
-		static GLTexture noTextureSample("Assets/Textures/sm.png"); // Variable estática local
+		static GLTexture noTextureSample("Preloaded Texture"); // Variable estática local
 		// TODO: This would be a principal camera
-		CameraComponent& camera = scene.GetRegistry().get<CameraComponent>(scene.GetPrincipalCamera());
+		CameraComponent& camera = scene.GetPrincipalCamera()->GetComponent<CameraComponent>();
 		Renderer::Clear({ camera.Color.r*255.0f ,camera.Color.g * 255.0f ,camera.Color.b * 255.0f ,camera.Color.a * 255.0f });
 		auto view = scene.GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
 		for (auto entity : view)
@@ -39,10 +40,10 @@ namespace Zero
 
 			ShaderComponent& shader = view.get<ShaderComponent>(entity);
 			
-			shader.Shader.Use();
-			shader.Shader.setMat4("model", transform.GetTransform());
-			shader.Shader.setMat4("projection", camera.camera->GetProjection());
-			shader.Shader.setMat4("view", camera.camera->GetView());
+			shader.Shader->Use();
+			shader.Shader->setMat4("model", transform.GetTransform());
+			shader.Shader->setMat4("projection", camera.camera->GetProjection());
+			shader.Shader->setMat4("view", camera.camera->GetView());
 
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 				noTextureSample.Bind(0);
@@ -61,32 +62,40 @@ namespace Zero
 		}
 	}
 
-	void Renderer::RenderOnEditor(Scene& scene, EditorCamera& editorCamera)
+	void Renderer::RenderOnEditor(Ref<Scene> scene, EditorCamera& editorCamera)
 	{
-		static GLTexture noTextureSample("Assets/Textures/sm.png"); // Textura estática en el renderizador
-
-		auto view = scene.GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
+		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
 		for (auto entity : view)
 		{
-			TransformComponent& transform = view.get<TransformComponent>(entity);
-			MeshComponent& model = view.get<MeshComponent>(entity);
+			auto entidad = scene->GetEntityByID(entity);
+			TransformComponent& transform = entidad.GetComponent<TransformComponent>();
+			MeshComponent& model = entidad.GetComponent<MeshComponent>();
 			if (!model.ptr_Model) return;
+			ShaderComponent& shader = entidad.GetComponent<ShaderComponent>();
+			shader.Shader->Use();
+			shader.Shader->setMat4("model", transform.GetTransform());
+			shader.Shader->setMat4("projection", editorCamera.GetProjection());
+			shader.Shader->setMat4("view", editorCamera.GetView());
+			shader.Shader->setVec3("cameraPosition",editorCamera.GetPosition());
+			shader.Shader->setVec3("lightPosition", editorCamera.GetPosition());
 
-			ShaderComponent& shader = view.get<ShaderComponent>(entity);
-			shader.Shader.Use();
-			shader.Shader.setMat4("model", transform.GetTransform());
-			shader.Shader.setMat4("projection", editorCamera.GetProjection());
-			shader.Shader.setMat4("view", editorCamera.GetView());
-
+			//ZERO_APP_LOG_DEBUG("Nombre: {0}, Position: {1}", entidad.GetComponent<TagComponent>().Tag,
+				//glm::to_string(transform.Translation));
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
-				noTextureSample.Bind(0);
+				auto material = mesh.Material;
+				auto properties = material.GetProperties();
+				shader.Shader->setVec3("albedo", properties.Albedo);
+				shader.Shader->setFloat("metallic", properties.Metallic);
+				shader.Shader->setFloat("roughness", properties.Roughness);
+				shader.Shader->setBool("hasAlbedoTexture", properties.hasAlbedoTexture);
+
 				for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
 				{
 					const auto& texture = mesh.Material.getTextures().at(i);
 					if (texture.Type == DIFFUSE)
 						texture.GlTexture->Bind(0);
-					if (texture.Type == NORMAL)
-						texture.GlTexture->Bind(1);
+					//if (texture.Type == NORMAL)
+						//texture.GlTexture->Bind(1);
 				}
 				mesh.m_VAO->Bind();
 				glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VertexIndices.size()), GL_UNSIGNED_INT, 0);

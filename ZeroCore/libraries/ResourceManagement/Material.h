@@ -2,10 +2,11 @@
 
 #include <array>
 #include <GLGraphics/Texture.h>
+#include <Core/Aliases.h>
+#include <Core/UUID.h>
 
 namespace Zero
 {
-	// Gltexture*, MeshTexturetype, Path
 	enum MeshTextureTypes {
 		DIFFUSE,
 		SPECULAR,
@@ -15,17 +16,25 @@ namespace Zero
 		EMISSIVE
 	};
 	struct MeshTexture {
-		std::shared_ptr<Zero::GLTexture> GlTexture;
+		Ref<Zero::GLTexture> GlTexture;
 		MeshTextureTypes Type;
 		std::string Path;
+		UUID Identifier;
 	};
-
+	struct MaterialProperties {
+		glm::vec3 Albedo = glm::vec3(1.0f);
+		bool hasAlbedoTexture = false;
+		float Metallic = 0.0f;
+		float Roughness = 0.5f;
+		glm::vec3 Emissive = glm::vec3(0.0f);
+		float Opacity = 1.0f;
+	};
 	class Material
 	{
 	public:
 
-		//Material();
-		//~Material();
+		Material() = default;
+		~Material() = default;
 		inline const std::array<MeshTexture,5>& getTextures() const {
 			return m_textures;
 		}
@@ -33,8 +42,10 @@ namespace Zero
 			m_textures.at(m_NumTextures++) = texture;
 		}
 		std::array<MeshTexture, 5> m_textures;
+		MaterialProperties& GetProperties() { return m_Properties; }
 		inline unsigned int GetNumTextures() const { return m_NumTextures; }
 	private:
 		unsigned int m_NumTextures=0;
+		MaterialProperties m_Properties;
 	};
 }

@@ -1,19 +1,34 @@
 #include "Texture.h"
 #include <Core/Logger.h>
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
 #include <GLFW/glfw3.h>
 
 namespace Zero
 {
-	GLTexture::GLTexture(const char* texturePath)
+	GLTexture::GLTexture(const char* path, bool embedded, unsigned char* data, int size)
 	{
-		Log logger;
-		if (LoadTexture(m_width, m_height, m_nrChannels, texturePath) != 0)
+		if (embedded)
 		{
-			ZERO_CORE_LOG_WARN("Texture missing on: {0}", texturePath);
-			LoadTexture(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
+			if (LoadTextureFromMemory(data, size, m_width, m_height, m_nrChannels) != 0)
+			{
+
+				ZERO_CORE_LOG_WARN("Embedded Texture not loaded");
+				LoadTextureFromFile(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
+			}
 		}
+		else
+		{
+			if (LoadTextureFromFile(m_width, m_height, m_nrChannels, path) != 0)
+			{
+
+				ZERO_CORE_LOG_WARN("Texture missin on: {0}", path);
+				LoadTextureFromFile(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
+			}
+		}
+
 		glGenTextures(1, &m_id);
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		SetPixelStoreAlignment(m_width);
@@ -24,9 +39,9 @@ namespace Zero
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_RED,
 				GL_UNSIGNED_BYTE, m_data);
 			break;
-			//case 2:
-				//glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_R8,
-					//GL_UNSIGNED_BYTE, m_data);
+		case 2:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_R8,
+				GL_UNSIGNED_BYTE, m_data);
 		case 3:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_width, m_height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, m_data);
@@ -63,19 +78,23 @@ namespace Zero
 	{
 		if (m_data)
 			stbi_image_free(m_data);
-		if (LoadTexture(m_width, m_height, m_nrChannels, texturePath) != 0)
-			// Work in progress
+		if (LoadTextureFromFile(m_width, m_height, m_nrChannels, texturePath) != 0)
+			//TODO : Work in progress
 			;
 		glBindTexture(GL_TEXTURE_2D, m_id);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, m_data);
 	}
-	int GLTexture::LoadTexture(int& width, int& height, int& nrChannels, const char* texturePath)
+	int GLTexture::LoadTextureFromFile(int& width, int& height, int& nrChannels, const char* texturePath)
 	{
 		m_data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
-		if (!m_data)
-		{
-			return -1;
-		}
+		if (!m_data) return -1;
+		return 0;
+	}
+
+	int GLTexture::LoadTextureFromMemory(unsigned char* data, int size, int& width, int& height, int& nrChannels)
+	{
+		m_data = stbi_load_from_memory(data, size, &width, &height, &nrChannels, 0);
+		if (!m_data) return -1;
 		return 0;
 	}
 

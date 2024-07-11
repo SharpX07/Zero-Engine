@@ -28,7 +28,9 @@ namespace Zero
 				auto& component = m_SelectedEntity.GetComponent<T>();
 				if (ImGui::CollapsingHeader(name.c_str()))
 				{
+					ImGui::Indent(20.0f);
 					uiblock(component);
+					ImGui::Unindent(20.0f);
 				}
 			}
 		}

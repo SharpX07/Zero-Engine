@@ -5,11 +5,15 @@ namespace Zero
 	class Layer
 	{
 	public:
-		virtual void OnEvent(Event& e);
-		virtual void OnUpdate();
-
+		Layer();
+		virtual ~Layer();
+		virtual void OnEvent(Event& e) {}
+		virtual void OnAttach(){}
+		virtual void OnDetach() {}
+		virtual void OnUpdate() {}
+		bool IsActive() { return m_IsActive; }
+		bool SetActive(bool active) { m_IsActive = active; }
 	private:
-		static float m_ScrollDelta;
-		static bool m_MouseScrolled;
+		bool m_IsActive;
 	};
 }

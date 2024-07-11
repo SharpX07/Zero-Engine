@@ -100,11 +100,8 @@ namespace Zero
 		if (Input::KeyPressed(KeyCode(Key::KEY_D)))
 			m_Position += m_Right * moveAmount;
 
-		//if (Input::KeyUp(KeyCode(Key::SPACE)))
-			//ZERO_CORE_LOG_DEBUG("ESPACIO SOLTADO!");
 		if (Input::KeyDown(KeyCode(Key::SPACE)))
 		{
-			ZERO_CORE_LOG_DEBUG("ESPACIO PRESIONADO!");
 			m_CameraState = (m_CameraState == CameraState::FREE_CAMERA) ? CameraState::ORBIT_CAMERA : CameraState::FREE_CAMERA;
 		}
 	}
@@ -134,6 +131,4 @@ namespace Zero
 			m_View = glm::lookAt(m_Position, m_OrbitCenter, up);
 		}
 	}
-
-	// ... (implementar los otros métodos como SetPerspectiveProjection, CalculateProjection, etc.)
 }

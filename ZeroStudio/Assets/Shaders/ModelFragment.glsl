@@ -1,26 +1,57 @@
 #version 330 core
 out vec4 FragColor;
+
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
-uniform sampler2D ourTexture;
-uniform sampler2D ourTexture2;
 
-void main() {
-     // ambient
+uniform sampler2D ourTexture;
+
+// Nuevas propiedades del material
+uniform vec3 albedo;
+uniform float metallic;
+uniform float roughness;
+uniform bool hasAlbedoTexture; // Nuevo uniforme
+
+// Propiedades de la luz
+uniform vec3 lightPosition;
+uniform vec3 cameraPosition;
+
+void main()
+{
+    vec3 baseColor;
+    float transparency = 0.0;
+    if (hasAlbedoTexture) {
+        // Combinar albedo con la textura
+        vec4 texColor = texture(ourTexture, TexCoord).rgba;
+        transparency = texColor.a;
+        baseColor = albedo * texColor.rgb;
+    } else {
+        baseColor = albedo; // Usar solo el color de albedo
+        transparency = 1.0;
+    }
+
+    // ambient
     float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * vec3(1,1,1);
-  	
+    vec3 ambient = ambientStrength * baseColor;
+
     // diffuse 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(vec3(10,0,10) - FragPos);
+    vec3 lightDir = normalize(lightPosition - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * vec3(1,1,1);
-            
-    vec3 result = (ambient + diffuse);
-    FragColor = vec4(result, 1.0)*texture(ourTexture, TexCoord).rgba;
-    if(FragColor.a==0.0){
-    discard;
+    vec3 diffuse = diff * baseColor;
+
+    // specular
+    float specularStrength = 1.0 - roughness; // Usar roughness para controlar la intensidad especular
+    vec3 viewDir = normalize(cameraPosition - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec3 specular = specularStrength * spec * mix(vec3(1.0), baseColor, metallic); // Usar metallic para mezclar con el color base
+
+    vec3 result = ambient + diffuse + specular;
+    FragColor = vec4(result, 1.0);
+
+    if (transparency == 0.0) {
+        discard;
     }
 }
-

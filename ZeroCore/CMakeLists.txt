@@ -14,8 +14,11 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 
+add_subdirectory(external/nativefiledialog-extended)
 add_subdirectory(external/glad)
 add_subdirectory(external/stb)
+
+
 add_library(${PROJECT_NAME} core.cpp ${LIBRARIES_SOURCES})
 add_library(core ALIAS ${PROJECT_NAME})
 
@@ -36,6 +39,8 @@ target_link_libraries(${PROJECT_NAME}
     assimp::assimp
     EnTT::EnTT
     imgui::imgui
+    nfd
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ZERO_CORE_LOGGER_ACTIVATE)
+

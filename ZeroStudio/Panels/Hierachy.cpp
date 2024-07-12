@@ -35,9 +35,8 @@ namespace Zero
 					newCameraComponent.get()->SetPerspectiveProjection(glm::radians(45.0f), 0.1, 5000.0);
 					newCameraComponent.get()->SetViewportSize(800, 800);
 					newCameraComponent.get()->CalculateProjection();
-
 					newCamera.AddComponent<CameraComponent>(newCameraComponent);
-
+					newCamera.AddComponent<TransformComponent>();
 					m_SelectedEntity = newCamera;
 				}
 			}

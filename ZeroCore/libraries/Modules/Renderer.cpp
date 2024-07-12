@@ -62,7 +62,7 @@ namespace Zero
 		}
 	}
 
-	void Renderer::RenderOnEditor(Ref<Scene> scene, EditorCamera& editorCamera)
+	void Renderer::RenderOnEditor(Ref<Scene> scene, Scope<EditorCamera>& editorCamera)
 	{
 		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
 		for (auto entity : view)
@@ -74,13 +74,11 @@ namespace Zero
 			ShaderComponent& shader = entidad.GetComponent<ShaderComponent>();
 			shader.Shader->Use();
 			shader.Shader->setMat4("model", transform.GetTransform());
-			shader.Shader->setMat4("projection", editorCamera.GetProjection());
-			shader.Shader->setMat4("view", editorCamera.GetView());
-			shader.Shader->setVec3("cameraPosition",editorCamera.GetPosition());
-			shader.Shader->setVec3("lightPosition", editorCamera.GetPosition());
+			shader.Shader->setMat4("projection", editorCamera->GetProjection());
+			shader.Shader->setMat4("view", editorCamera->GetView());
+			shader.Shader->setVec3("cameraPosition",editorCamera->GetPosition());
+			shader.Shader->setVec3("lightPosition", editorCamera->GetPosition());
 
-			//ZERO_APP_LOG_DEBUG("Nombre: {0}, Position: {1}", entidad.GetComponent<TagComponent>().Tag,
-				//glm::to_string(transform.Translation));
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 				auto material = mesh.Material;
 				auto properties = material.GetProperties();

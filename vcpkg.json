@@ -9,10 +9,12 @@
         "docking-experimental"
       ]
     },
+
     "assimp",
     "glfw3",
     "glm",
     "spdlog",
-    "entt"
+    "entt",
+    "nativefiledialog"
   ]
 }

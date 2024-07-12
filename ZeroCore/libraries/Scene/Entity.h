@@ -13,7 +13,7 @@ namespace Zero
 		template<typename T, typename... Args>
 		void AddComponent(Args&&... args)
 		{
-			ZERO_ASSERT(CRITICAL, !HasComponent<T>(), "La entidad ya tiene este componente");
+			ZERO_ASSERT(!HasComponent<T>(), "La entidad ya tiene este componente");
 			m_Scene->m_Registry.emplace<T>(m_EntityHandler, std::forward<Args>(args)...);
 		}
 
@@ -26,8 +26,8 @@ namespace Zero
 		template<typename T>
 		T& GetComponent()
 		{
-			ZERO_ASSERT(CRITICAL,HasComponent<T>(),"La entidad no tiene este componente")
-			return m_Scene->m_Registry.get<T>(m_EntityHandler);
+			ZERO_ASSERT(HasComponent<T>(), "La entidad no tiene este componente")
+				return m_Scene->m_Registry.get<T>(m_EntityHandler);
 		}
 
 		template<typename T>
@@ -35,13 +35,13 @@ namespace Zero
 		{
 			return m_Scene->m_Registry.all_of<T>(m_EntityHandler);
 		}
-		
+
 		operator bool() const { return m_EntityHandler != entt::null; }
 
 	private:
 		entt::entity m_EntityHandler{ entt::null };
 		Scene* m_Scene = nullptr;
-		
+
 		friend class Scene;
 	};
 }

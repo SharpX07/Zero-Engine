@@ -119,7 +119,7 @@ namespace Zero {
 	}
 	bool Window::InitializeGLAD()
 	{
-		ZERO_ASSERT(CRITICAL, gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "No se pudo inicializar GLAD");
+		ZERO_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "No se pudo inicializar GLAD");
 		ZERO_CORE_LOG_INFO("Glad initialized successfully");
 
 		return true;

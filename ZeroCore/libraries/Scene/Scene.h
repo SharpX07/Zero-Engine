@@ -22,15 +22,15 @@ namespace Zero
 		entt::registry& GetRegistry() { return m_Registry; }
 		void RenderScene();
 		void SetPrincipalCamera(Ref<Entity> camera);
-		void SetEditorCamera(EditorCamera* camera) { m_EditorCamera = camera; }
+		//void SetEditorCamera(EditorCamera* camera) { m_EditorCamera = camera; }
 
 		Ref<Entity> GetPrincipalCamera() const { return m_PrincipalCamera; }
-		EditorCamera* GetEditorCamera() const { return m_EditorCamera; }
+		//EditorCamera* GetEditorCamera() const { return m_EditorCamera; }
 
 	private:
 		entt::registry m_Registry;
 		Ref<Entity> m_PrincipalCamera;
-		EditorCamera* m_EditorCamera;
+		//EditorCamera* m_EditorCamera;
 		friend class Entity;
 	};
 }

@@ -3,6 +3,7 @@
 #include <imgui_stdlib.h>
 #include <imgui_internal.h>
 #include <ResourceManagement/ResourceManager.h>
+#include <nfd.h>
 
 namespace Zero
 {
@@ -42,7 +43,22 @@ namespace Zero
 					if (!m_SelectedEntity.HasComponent<MeshComponent>())
 					{
 						ResourceManager manager;
-						m_SelectedEntity.AddComponent<MeshComponent>(manager.CreateResource<Model>("Assets/Models/vefq.glb"));
+						nfdu8char_t* outPath;
+						nfdopendialogu8args_t args = { 0 };
+						nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+						if (result == NFD_OKAY)
+						{
+							m_SelectedEntity.AddComponent<MeshComponent>(manager.CreateResource<Model>(outPath));
+							NFD_FreePathU8(outPath);
+						}
+						else if (result == NFD_CANCEL)
+						{
+							ZERO_APP_LOG_INFO("Model loader cancelled");
+						}
+						else
+						{
+							ZERO_APP_LOG_ERROR(NFD_GetError());
+						}
 					}
 				}
 
@@ -158,9 +174,17 @@ namespace Zero
 		DrawComponent<MeshComponent>("Mesh Component",
 			[](auto& component)
 			{
-				auto& path = component.ptr_Model->GetPath();
-				ImGui::Text("Path: %s", path.c_str());
-				ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
+				if (component.ptr_Model)
+				{
+					auto& path = component.ptr_Model->GetPath();
+					ImGui::Text("Path: %s", path.c_str());
+					ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
+				}
+				else
+				{
+					ImGui::Text("Path: %s", "");
+					ImGui::Text("Referencias: %i", -1);
+				}
 			});
 	}
 

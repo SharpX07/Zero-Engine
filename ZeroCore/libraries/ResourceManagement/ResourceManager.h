@@ -11,123 +11,88 @@
 
 namespace Zero
 {
-	struct Resource
-	{
-
-		std::string Name;
-		Ref<Model> ModelResource;
-		Ref<GLTexture> TextureResource;
-	};
-
-
 	class ResourceManager
 	{
 	public:
-        template<typename T>
-        Ref<T> CreateResource(const std::string& path)
-        {
-            if constexpr (std::is_same_v<T, Model>)
-            {
-                std::string filename = std::filesystem::path(path).filename().string();
-                auto it = m_ModelResources.find(filename);
-                if (it != m_ModelResources.end())
-                {
-                    return std::static_pointer_cast<T>(it->second);
-                }
+		template<typename T>
+		Ref<T> CreateResource(const std::string& path)
+		{
+			if constexpr (std::is_same_v<T, Model>)
+			{
+				return CreateAndStoreResource<Model>(path, m_ModelResources, [this](const std::string& p) { return this->CreateModel(p); });
+			}
+			else if constexpr (std::is_same_v<T, Shader>)
+			{
+			}
+			else
+			{
+				ZERO_ASSERT(false, "Unsupported resource type");
+			}
+		}
 
-                Ref<Model> resource = CreateModel(path);
-                ZERO_APP_LOG_INFO(resource.use_count());
-                m_ModelResources.insert({ filename, resource });
-                return std::static_pointer_cast<T>(resource);
-            }
-            else if constexpr (std::is_same_v<T, GLTexture>)
-            {
-                std::string filename = std::filesystem::path(path).filename().string();
-                auto it = m_TextureResources.find(filename);
-                if (it != m_TextureResources.end())
-                {
-                    return std::static_pointer_cast<T>(it->second);
-                }
+		template<typename T>
+		Ref<T> GetResource(const std::string& name)
+		{
+			Ref<T> existingResource;
+			if constexpr (std::is_same_v<T, Model>)
+				existingResource = FindResource<T>(filename, resourceMap);
+			else
+				ZERO_ASSERT(false, "Unsupported resource type");
 
-                Ref<GLTexture> resource = CreateTexture(path);
-                m_TextureResources.insert({ filename, resource });
-                return std::static_pointer_cast<T>(resource);
-            }
-            else
-            {
-                static_assert(always_false<T>::value, "Unsupported resource type");
-            }
-        }
+			if (existingResource)
+				return existingResource;
+			else
+				ZERO_CORE_LOG_WARN("Resource not found: {}", name);
+			return nullptr;
+		}
 
-        Ref<Resource> GetResource(const std::string& name)
-        {
-            auto resource = CreateRef<Resource>();
-            resource->Name = name;
+		void Clear()
+		{
+			m_ModelResources.clear();
+			m_TextureResources.clear();
+			m_ShaderResources.clear();
+		}
 
-            auto modelIt = m_ModelResources.find(name);
-            if (modelIt != m_ModelResources.end())
-            {
-                resource->ModelResource = modelIt->second;
-            }
+	private:
+		template<typename Key, typename Value>
+		using HashTable = std::unordered_map<Key, Value>;
 
-            auto textureIt = m_TextureResources.find(name);
-            if (textureIt != m_TextureResources.end())
-            {
-                resource->TextureResource = textureIt->second;
-            }
+		template<typename T, typename F>
+		Ref<T> CreateAndStoreResource(const std::string& path, HashTable<std::string, Ref<T>>& resourceMap, F creator)
+		{
+			std::string filename = std::filesystem::path(path).filename().string();
 
-            if (!resource->ModelResource && !resource->TextureResource)
-            {
-                ZERO_CORE_LOG_WARN("Resource not found: {}", name);
-                return nullptr;
-            }
+			Ref<T> existingResource = FindResource<T>(filename, resourceMap);
+			if (existingResource) return existingResource;
 
-            return resource;
-        }
+			Ref<T> resource = creator(path);
+			if (resource) resourceMap.insert({ filename, resource });
+			return resource;
+		}
 
-        void Clear()
-        {
-            m_ModelResources.clear();
-            m_TextureResources.clear();
-        }
+		template<typename T>
+		Ref<T> FindResource(const std::string& filename, const HashTable<std::string, Ref<T>>& resourceMap)
+		{
+			auto it = resourceMap.find(filename);
+			if (it != resourceMap.end()) return it->second;
+			return nullptr;
+		}
 
-    private:
-        Ref<Model> CreateModel(const std::string& path)
-        {
-            try
-            {
-                return m_ModelImporter.loadModel(path.c_str());
-            }
-            catch (const std::exception& e)
-            {
-                ZERO_CORE_LOG_ERROR("Failed to load model: {}. Error: {}", path, e.what());
-                return nullptr;
-            }
-        }
+		Ref<Model> CreateModel(const std::string& path)
+		{
+			return m_ModelImporter.loadModel(path.c_str());
+		}
 
-        //Ref<GLTexture> CreateTexture(const std::string& path)
-        //{
-        //    try
-        //    {
-        //        // Implement texture loading logic here
-        //        Ref<GLTexture> texture = CreateRef<GLTexture>();
-        //        // Load texture data...
-        //        return texture;
-        //    }
-        //    catch (const std::exception& e)
-        //    {
-        //        ZERO_CORE_LOG_ERROR("Failed to load texture: {}. Error: {}", path, e.what());
-        //        return nullptr;
-        //    }
-        //}
+		Ref<Model> CreateShader(const std::string& path)
+		{
+			return m_ModelImporter.loadModel(path.c_str());
+		}
 
-    private:
-        static std::unordered_map<std::string, Ref<Model>> m_ModelResources;
-        static std::unordered_map<std::string, Ref<GLTexture>> m_TextureResources;
-        ModelImporter m_ModelImporter;
 
-        // Helper type for the static_assert in CreateResource
-        template<typename T>
-        struct always_false : std::false_type {};
-    };
+	private:
+		static HashTable<std::string, Ref<Model>> m_ModelResources;
+		static HashTable<std::string, Ref<GLTexture>> m_TextureResources;
+		static HashTable<std::string, Ref<Shader>> m_ShaderResources;
+		ModelImporter m_ModelImporter;
+	};
 }

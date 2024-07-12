@@ -3,6 +3,10 @@
 #include <Scene/Scene.h>
 #include <Core/Logger.h>
 #include <Core/Aliases.h>
+#include <Panels/Inspector.h>
+#include <Panels/Hierarchy.h>
+#include <Panels/PreviewPanel.h>
+#include <Panels/EditorViewPanel.h>
 
 namespace Zero
 {
@@ -20,5 +24,12 @@ namespace Zero
 		Zero::Window m_Window;
 		Zero::Log m_Logger;
 		Ref<Scene> newScene;
+
+    // Panels
+	private:
+		Scope<PreviewPanel> m_PreviewPanel;
+		Scope<InspectorPanel> m_InspectorPanel;
+		Scope<EditorViewPanel> m_EditorViewPanel;
+		Scope<HierarchyPanel> m_HierarchyPanel;
 	};
 }

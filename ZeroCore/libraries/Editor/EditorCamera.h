@@ -15,7 +15,7 @@ namespace Zero
 	class EditorCamera : public Camera
 	{
 	public:
-		EditorCamera(const glm::mat4& projection, const glm::mat4& view)
+		EditorCamera(const glm::mat4& projection = {0}, const glm::mat4& view = { 0 })
 			: Camera(projection, view), m_Projection(projection), m_View(view)
 		{
 			m_LastMousePosition = Input::GetMousePosition();

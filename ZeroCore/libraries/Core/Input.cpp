@@ -32,24 +32,24 @@ namespace Zero
 		glfwGetCursorPos(window, &xPos, &yPos);
 		return glm::vec2(static_cast<float>(xPos), static_cast<float>(yPos));
 	}
-	bool Input::KeyPressed(KeyCode key)
+	bool Input::KeyPressed(Key key)
 	{
 		auto window = Application::GetInstance()->GetGlfwWindow();
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		return state == GLFW_PRESS;
 	}
-	bool Input::KeyUp(KeyCode key) {
+	bool Input::KeyUp(Key key) {
 		auto window = Application::GetInstance()->GetGlfwWindow();
-		static std::map<KeyCode, bool> keyStates; // Store key states
+		static std::map<Key, bool> keyStates; // Store key states
 		bool wasPressed = keyStates[key];
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		keyStates[key] = state == GLFW_PRESS;
 		return wasPressed && state == GLFW_RELEASE;
 	}
 
-	bool Input::KeyDown(KeyCode key) {
+	bool Input::KeyDown(Key key) {
 		auto window = Application::GetInstance()->GetGlfwWindow();
-		static std::map<KeyCode, bool> keyStates; // Store key states
+		static std::map<Key, bool> keyStates; // Store key states
 		bool wasPressed = keyStates[key];
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		keyStates[key] = state == GLFW_RELEASE;

@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-
+#include <unordered_map>
 namespace Zero
 {
 		// Alias for std::shared_ptr
@@ -23,5 +23,8 @@ namespace Zero
 			return std::make_unique<T>(std::forward<Args>(args)...);
 		}
 
+
+		template<typename Key, typename Value>
+		using HashTable = std::unordered_map<Key, Value>;
 
 }

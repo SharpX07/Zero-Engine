@@ -142,6 +142,7 @@ namespace Zero
 	void InspectorPanel::DrawComponents()
 	{
 		// Crear estilo personalizado
+
 		DrawComponent<IDComponent>("ID Component",
 			[](auto& component)
 			{
@@ -163,8 +164,6 @@ namespace Zero
 		DrawComponent<TransformComponent>("Transform Component",
 			[](auto& component)
 			{
-				//ImGui::Text("Translation:");
-				//Draw3VecInput("Translation", &component.Translation[0]);
 				ImGui::InputFloat3("Position", &component.Translation[0]);
 				ImGui::Text("Rotation:");
 				ImGui::InputFloat3("Rotation", &component.Rotation[0]);
@@ -185,6 +184,11 @@ namespace Zero
 					ImGui::Text("Path: %s", "");
 					ImGui::Text("Referencias: %i", -1);
 				}
+			});
+		DrawComponent<ShaderComponent>("Shader Component",
+			[](auto& component)
+			{
+				ImGui::Text("ProgramValue: %i", component.Shader->m_ShaderProgram);
 			});
 	}
 

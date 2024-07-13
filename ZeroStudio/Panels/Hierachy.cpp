@@ -3,6 +3,9 @@
 #include <Core/Logger.h>
 #include <Scene/Components.h>
 #include <Core/UUID.h>
+#include <GLGraphics/ShaderParser.h>
+#include <ResourceManagement/ResourceManager.h>
+#include <nfd.h>
 namespace Zero
 {
 	void HierarchyPanel::OnRender()
@@ -17,9 +20,6 @@ namespace Zero
 				if (m_FocusedScene)
 				{
 					Entity newEntity = m_FocusedScene->CreateEntity();
-					newEntity.AddComponent<IDComponent>(UUID());
-
-					// Opcionalmente, puedes seleccionar la nueva entidad
 					m_SelectedEntity = newEntity;
 				}
 			}
@@ -30,7 +30,7 @@ namespace Zero
 				if (m_FocusedScene)
 				{
 					Entity newCamera = m_FocusedScene->CreateEntity();
-					
+
 					Ref<SceneCamera> newCameraComponent = CreateRef<SceneCamera>(glm::mat4(1.0f), glm::mat4(1.0f));
 					newCameraComponent.get()->SetPerspectiveProjection(glm::radians(45.0f), 0.1, 5000.0);
 					newCameraComponent.get()->SetViewportSize(800, 800);
@@ -38,6 +38,34 @@ namespace Zero
 					newCamera.AddComponent<CameraComponent>(newCameraComponent);
 					newCamera.AddComponent<TransformComponent>();
 					m_SelectedEntity = newCamera;
+				}
+			}
+			if (ImGui::MenuItem("Create 3D Object"))
+			{
+				if (m_FocusedScene)
+				{
+					ShaderParser parser;
+					ResourceManager manager;
+					nfdu8char_t* outPath;
+					nfdopendialogu8args_t args = { 0 };
+					Entity new3DObject = m_FocusedScene->CreateEntity();
+					new3DObject.AddComponent<TransformComponent>();
+					new3DObject.AddComponent<ShaderComponent>(parser.GenerateShader("Assets/Shaders/Model.glsl"));
+					nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+					if (result == NFD_OKAY)
+					{
+						new3DObject.AddComponent<MeshComponent>(manager.CreateResource<Model>(outPath));
+						NFD_FreePathU8(outPath);
+					}
+					else if (result == NFD_CANCEL)
+					{
+						ZERO_APP_LOG_INFO("Model loader cancelled");
+					}
+					else
+					{
+						ZERO_APP_LOG_ERROR(NFD_GetError());
+					}
+					m_SelectedEntity = new3DObject;
 				}
 			}
 

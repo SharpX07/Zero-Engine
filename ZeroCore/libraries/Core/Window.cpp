@@ -14,7 +14,6 @@ namespace Zero {
 
 	void Window::Initialize()
 	{
-		Log log;
 		// Initialize GLFW
 		if (!glfwInit()) {
 			ZERO_CORE_LOG_CRITICAL("No se pudo inicializar GLFW");

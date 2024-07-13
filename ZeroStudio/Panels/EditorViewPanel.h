@@ -22,12 +22,20 @@ namespace Zero
 		void OnRender();
 		void SetSceneFocus(Ref<Scene> scene);
 		void UpdateEditorCamera(float deltaTime) { m_EditorCamera->Update(deltaTime); }
+		Entity GetSelectedEntity() { return m_SelectedEntity; }
 	private:
+		void InitializeCamera();
+		void InitializeGeometry();
+		void InitializeShader();
+		void DrawGrid();
+		void DrawView();
+		void HandleMousePick(int mouseX, int mouseY);
 		Ref<Scene> m_FocusedScene;
 		Framebuffer m_FBO{ 512,512 };
 		Scope<Shader> m_TestShader;
 		Scope<VAO> m_VAO;
 		Scope<VBO> m_VBO;
 		Scope<EditorCamera> m_EditorCamera;
+		Entity m_SelectedEntity{ entt::null, m_FocusedScene.get() };
 	};
 }

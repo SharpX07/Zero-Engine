@@ -2,6 +2,7 @@
 #include <Core/Aliases.h>
 #include <unordered_map>
 #include <ResourceManagement/model.h>
+#include <GLGraphics/ShaderParser.h>
 #include <Modules/ModelReader.h>
 #include <iostream>
 #include <filesystem>
@@ -23,6 +24,7 @@ namespace Zero
 			}
 			else if constexpr (std::is_same_v<T, Shader>)
 			{
+				return CreateAndStoreResource<Shader>(path, m_ShaderResources, [this](const std::string& p) { return this->CreateShader(p); });
 			}
 			else
 			{
@@ -54,8 +56,7 @@ namespace Zero
 		}
 
 	private:
-		template<typename Key, typename Value>
-		using HashTable = std::unordered_map<Key, Value>;
+		
 
 		template<typename T, typename F>
 		Ref<T> CreateAndStoreResource(const std::string& path, HashTable<std::string, Ref<T>>& resourceMap, F creator)
@@ -83,9 +84,9 @@ namespace Zero
 			return m_ModelImporter.loadModel(path.c_str());
 		}
 
-		Ref<Model> CreateShader(const std::string& path)
+		Ref<Shader> CreateShader(const std::string& path)
 		{
-			return m_ModelImporter.loadModel(path.c_str());
+			return m_ShaderParser.GenerateShader(path.c_str());
 		}
 
 
@@ -94,5 +95,6 @@ namespace Zero
 		static HashTable<std::string, Ref<GLTexture>> m_TextureResources;
 		static HashTable<std::string, Ref<Shader>> m_ShaderResources;
 		ModelImporter m_ModelImporter;
+		ShaderParser m_ShaderParser;
 	};
 }

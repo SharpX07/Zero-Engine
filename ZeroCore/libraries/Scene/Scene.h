@@ -3,6 +3,7 @@
 //#include <Scene/SceneCamera.h>
 #include <Editor/EditorCamera.h>
 #include <Core/Aliases.h>
+#include <Core/UUID.h>
 namespace Zero
 {
 	class Entity;
@@ -19,6 +20,7 @@ namespace Zero
 		auto GetAllEntitiesWith() { return m_Registry.view<Components...>(); }
 		auto GetAllEntities() { return m_Registry.view<entt::entity>(); }
 		Entity GetEntityByID(entt::entity entity);
+		Entity GetEntityByUUID(UUID id);
 		entt::registry& GetRegistry() { return m_Registry; }
 		void RenderScene();
 		void SetPrincipalCamera(Ref<Entity> camera);
@@ -30,7 +32,7 @@ namespace Zero
 	private:
 		entt::registry m_Registry;
 		Ref<Entity> m_PrincipalCamera;
-		//EditorCamera* m_EditorCamera;
+		HashTable<UUID, entt::entity> m_EntityMap;
 		friend class Entity;
 	};
 }

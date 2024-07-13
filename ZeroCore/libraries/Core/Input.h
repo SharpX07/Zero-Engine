@@ -13,9 +13,9 @@ namespace Zero
 		static void OnEvent(Event& e);
 
 		static glm::vec2 GetMousePosition();
-		static bool KeyPressed(KeyCode key);
-		static bool KeyUp(KeyCode key);
-		static bool KeyDown(KeyCode key);
+		static bool KeyPressed(Key key);
+		static bool KeyUp(Key key);
+		static bool KeyDown(Key key);
 		static bool MousePressed(MouseCode code);
 		static bool MouseReleased(MouseCode code);
 		static float GetMouseScrollDelta();

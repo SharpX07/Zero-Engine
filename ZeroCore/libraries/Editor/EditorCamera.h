@@ -46,11 +46,12 @@ namespace Zero
 
 		void SetOrbitRadius(float radius) { m_OrbitRadius = radius; }
 		float GetOrbitRadius() const { return m_OrbitRadius; }
+		
 
 	private:
-		void HandleMouseInput();
+		void HandleMouseInput(float deltaTime);
 		void HandleKeyboardInput(float deltaTime);
-
+		void ChangeCameraState(CameraState newState);
 		glm::mat4 m_Projection;
 		glm::mat4 m_View;
 		float m_Aspect;
@@ -60,15 +61,19 @@ namespace Zero
 		glm::vec3 m_Position{ 10, 10, 10 };
 		glm::vec3 m_Rotation{ 0, 0, 0 };  // En radianes
 		glm::vec3 m_OrbitCenter{ 0, 0, 0 };
-		float m_OrbitRadius = 10.0f;
 
 		glm::vec3 m_Front{ 0,0,-1 };
 		glm::vec3 m_Right{ 1,0,0 };
+		glm::vec3 m_Up{ 0,1,0 };
 		CameraState m_CameraState = CameraState::ORBIT_CAMERA;
 
 		glm::vec2 m_LastMousePosition;
 		float m_MouseSensitivity = 0.1f;
 		float m_MoveSpeed = 5.0f;
 		float m_ZoomSpeed = 1.0f;
+
+		float m_OrbitRadius = 10.0f;
+		float m_Yaw = 0;
+		float m_Pitch = 0;
 	};
 }

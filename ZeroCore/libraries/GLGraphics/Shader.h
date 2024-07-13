@@ -12,9 +12,14 @@
 
 namespace Zero
 {
+    enum class ShaderSourceType{
+        Path,
+        Source
+    };
+
 	class Shader {
 	public:
-		Shader(const char* vertexPath, const char* fragmentPath);
+		Shader(const char* vertexSource, const char* fragmentSource, ShaderSourceType type = ShaderSourceType::Path);
         ~Shader();
 		void Use();
 		void UnUse();
@@ -95,8 +100,12 @@ namespace Zero
 
 	private:
 		void checkCompileErrors(GLuint shader, std::string type);
-		GLuint m_VertexShader;
-		GLuint m_FragmentShader;
+        GLuint CreateVertexShader(const char* vShaderCode);
+        GLuint CreateFragmentShader(const char* fShaderCode);
+        void CreateShaderProgram(GLuint vertex, GLuint fragment);
+        void CreateShaderByPaths(const char* vertexPath, const char* fragmentPath);
+        void CreateShaderByCode(const char* vertexCode, const char* fragmentCode);
+       
     public:
 		GLuint m_ShaderProgram;
 	};

@@ -35,6 +35,7 @@ namespace Zero
 		static void Render(Model& model, Shader& shader);
 		static void RenderOnRuntime(Scene& scene);
 		static void RenderOnEditor(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
+		static void RenderOnDebug(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
 		static void Render(Shader& shader);
 		static void InitializeRenderer();
 		//static GLTexture noTextureSample;

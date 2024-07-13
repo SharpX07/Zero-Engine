@@ -17,21 +17,58 @@ namespace Zero
 		void DrawComponent(const std::string& name, ImguiBlock uiblock)
 		{
 			static bool firstShow = false;
-			if(m_SelectedEntity.HasComponent<T>())
+			if (m_SelectedEntity.HasComponent<T>())
 			{
-				if (!firstShow) 
+				auto& component = m_SelectedEntity.GetComponent<T>();
+
+				ImGui::PushID(name.c_str());
+
+				// Comenzamos un grupo para poder posicionar el botón absolutamente
+				ImGui::BeginGroup();
+
+				// Calculamos el ancho del header menos el espacio para el botón
+				float headerWidth = ImGui::GetContentRegionAvail().x - 30;
+
+				// Dibujamos el header con un ancho específico
+				bool open = ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap);
+
+				// Posicionamos el botón a la derecha del header
+				ImGui::SameLine(headerWidth);
+				if (ImGui::Button("..."))
 				{
-					firstShow = true;
-					ImGui::SetNextItemOpen(true);
+					ImGui::OpenPopup("ComponentContextMenu");
 				}
 
-				auto& component = m_SelectedEntity.GetComponent<T>();
-				if (ImGui::CollapsingHeader(name.c_str()))
+				// Terminamos el grupo
+				ImGui::EndGroup();
+
+				if (ImGui::BeginPopup("ComponentContextMenu"))
+				{
+					if (ImGui::MenuItem("Remove Component"))
+					{
+						m_SelectedEntity.RemoveComponent<T>();
+						ImGui::EndPopup();
+						ImGui::PopID();
+						return;
+					}
+					if (ImGui::MenuItem("Set to Default"))
+					{
+						//component.Reset();
+						ImGui::EndPopup();
+						ImGui::PopID();
+						return;
+					}
+					ImGui::EndPopup();
+				}
+
+				if (open)
 				{
 					ImGui::Indent(20.0f);
 					uiblock(component);
 					ImGui::Unindent(20.0f);
 				}
+
+				ImGui::PopID();
 			}
 		}
 

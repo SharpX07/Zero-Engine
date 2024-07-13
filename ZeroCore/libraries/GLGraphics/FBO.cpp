@@ -4,8 +4,8 @@ namespace Zero
 {
 	Framebuffer::Framebuffer(int width, int height)
 	{
-		glGenFramebuffers(1, &framebufferId_);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId_);
+		glGenFramebuffers(1, &m_FramebufferId);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferId);
 
 		CreateColorAttachment(width, height);
 		CreateDepthAttachment(width, height);
@@ -23,14 +23,14 @@ namespace Zero
 
 	Framebuffer::~Framebuffer()
 	{
-		glDeleteFramebuffers(1, &framebufferId_);
-		glDeleteTextures(1, &colorTextureId_);
-		glDeleteRenderbuffers(1, &depthRenderbufferId_);
+		glDeleteFramebuffers(1, &m_FramebufferId);
+		glDeleteTextures(1, &m_ColorTextureId);
+		glDeleteRenderbuffers(1, &m_DepthRenderbufferId);
 	}
 
 	void Framebuffer::Bind() const
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, framebufferId_);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferId);
 	}
 
 	void Framebuffer::UnBind() const
@@ -40,33 +40,33 @@ namespace Zero
 
 	void Framebuffer::RescaleFramebuffer(float width, float height)
 	{
-		glBindTexture(GL_TEXTURE_2D, colorTextureId_);
+		glBindTexture(GL_TEXTURE_2D, m_ColorTextureId);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId_, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTextureId, 0);
 
-		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbufferId_);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderbufferId);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbufferId_);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderbufferId);
 	}
 
 	void Framebuffer::CreateColorAttachment(int width, int height)
 	{
-		glGenTextures(1, &colorTextureId_);
-		glBindTexture(GL_TEXTURE_2D, colorTextureId_);
+		glGenTextures(1, &m_ColorTextureId);
+		glBindTexture(GL_TEXTURE_2D, m_ColorTextureId);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId_, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTextureId, 0);
 	}
 
 	void Framebuffer::CreateDepthAttachment(int width, int height)
 	{
-		glGenRenderbuffers(1, &depthRenderbufferId_);
-		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbufferId_);
+		glGenRenderbuffers(1, &m_DepthRenderbufferId);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderbufferId);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbufferId_);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderbufferId);
 	}
 	std::string Framebuffer::GetFramebufferStatusString(GLenum status)
 	{

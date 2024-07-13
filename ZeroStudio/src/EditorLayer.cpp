@@ -20,6 +20,7 @@
 #include "imgui_impl_opengl3.h"
 #include <ResourceManagement/ResourceManager.h>
 #include <nfd.h>
+#include <GLGraphics/ShaderParser.h>
 namespace Zero
 {
 	Editor::Editor()
@@ -75,15 +76,18 @@ namespace Zero
 		ResourceManager manager;
 		newScene = CreateRef<Scene>();
 		Entity Modelo = newScene->CreateEntity();
+
 		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(-glm::radians(0.0f), 0, 0), glm::vec3(1.0f));
-		Modelo.AddComponent<MeshComponent>(manager.CreateResource<Model>("Assets/Models/wal2l2.glb"));
-		Modelo.AddComponent<ShaderComponent>(CreateRef<Shader>("Assets/shaders/ModelVertex.glsl", "Assets/shaders/ModelFragment.glsl"));
+		Modelo.AddComponent<ShaderComponent>(manager.CreateResource<Shader>("Assets/shaders/Model.glsl"));
+		Modelo.AddComponent<MeshComponent>(manager.CreateResource<Model>("Assets/Models/vefq.glb"));
+		auto xd = Modelo.GetComponent<IDComponent>().Id;
 		m_PreviewPanel->SetSceneFocus(newScene);
 		m_HierarchyPanel->SetSceneFocus(newScene);
 		while (!m_Window.ShouldClose()) {
 			Time_ = glfwGetTime();
-			m_EditorViewPanel->UpdateEditorCamera(0.2f);
-			m_InspectorPanel->SetEntityFocus(m_HierarchyPanel->GetEntityFocus());
+			m_EditorViewPanel->UpdateEditorCamera(0.05f);
+			m_InspectorPanel->SetEntityFocus(m_EditorViewPanel->GetSelectedEntity());
+			ZERO_CORE_LOG_DEBUG("id_pre:{0}", (uint64_t)xd);
 			m_EditorViewPanel->SetSceneFocus(newScene);
 			CameraSystem::UpdateCameras(*newScene);
 			ImGui_ImplOpenGL3_NewFrame();

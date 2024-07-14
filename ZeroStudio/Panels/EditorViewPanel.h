@@ -29,9 +29,9 @@ namespace Zero
 		void InitializeShader();
 		void DrawGrid();
 		void DrawView();
-		void HandleMousePick(int mouseX, int mouseY);
+		void HandleMousePick();
 		Ref<Scene> m_FocusedScene;
-		Framebuffer m_FBO{ 512,512 };
+		Framebuffer m_FBO;
 		Scope<Shader> m_TestShader;
 		Scope<VAO> m_VAO;
 		Scope<VBO> m_VBO;

@@ -37,14 +37,18 @@ namespace Zero
 			}
 			if (Input::MousePressed(Zero::MouseCode(Zero::MouseButton::MIDDLE)))
 			{
-				m_Yaw -= glm::radians(delta.x * m_MouseSensitivity);
-				m_Pitch += glm::radians(delta.y * m_MouseSensitivity);
+				if (Input::KeyPressed(Key::LEFT_SHIFT))
+				{
+					m_OrbitCenter += (m_Up * delta.y - m_Right * delta.x) * deltaTime * (m_OrbitRadius / 100);
+				}
+				else
+				{
+					m_Yaw -= glm::radians(delta.x * m_MouseSensitivity);
+					m_Pitch += glm::radians(delta.y * m_MouseSensitivity);
+				}
 			}
 
-			if (Input::MousePressed(Zero::MouseCode(Zero::MouseButton::LEFT)) && Input::KeyPressed(Key::LEFT_SHIFT))
-			{
-				m_OrbitCenter += (m_Up * delta.y - m_Right * delta.x) * deltaTime*(m_OrbitRadius/100);
-			}
+
 
 			if (m_Yaw > glm::pi<float>()) m_Yaw = -glm::pi<float>();
 			if (m_Yaw < -glm::pi<float>()) m_Yaw = glm::pi<float>();
@@ -54,7 +58,7 @@ namespace Zero
 			float sinPhi = glm::sin(m_Pitch);
 			float cosPhi = glm::cos(m_Pitch);
 
-			m_Position =m_OrbitCenter+m_OrbitRadius* glm::vec3(sinTheta * cosPhi, sinPhi, cosTheta * cosPhi);
+			m_Position = m_OrbitCenter + m_OrbitRadius * glm::vec3(sinTheta * cosPhi, sinPhi, cosTheta * cosPhi);
 			m_Front = glm::normalize(m_OrbitCenter - m_Position);
 			m_Right = glm::normalize(glm::cross(m_Front, glm::vec3(0.0f, 1.0f, 0.0f)));
 			m_Up = glm::normalize(glm::cross(m_Right, m_Front));
@@ -133,8 +137,8 @@ namespace Zero
 		else if (m_CameraState == CameraState::FREE_CAMERA && newState == CameraState::ORBIT_CAMERA)
 		{
 			// Transición de FREE_CAMERA a ORBIT_CAMERA
-			m_OrbitRadius = glm::length(m_Position-m_OrbitCenter);
-			glm::vec3 normalizedPosition = (m_Position-m_OrbitCenter) / m_OrbitRadius;
+			m_OrbitRadius = glm::length(m_Position - m_OrbitCenter);
+			glm::vec3 normalizedPosition = (m_Position - m_OrbitCenter) / m_OrbitRadius;
 			m_Pitch = glm::asin(normalizedPosition.y);
 			m_Yaw = glm::atan(normalizedPosition.x, normalizedPosition.z);
 		}

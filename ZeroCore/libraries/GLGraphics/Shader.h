@@ -35,6 +35,11 @@ namespace Zero
         {
             glUniform1i(glGetUniformLocation(m_ShaderProgram, name.c_str()), value);
         }
+
+        inline void setUInt(const std::string& name, int value) const
+        {
+            glUniform1ui(glGetUniformLocation(m_ShaderProgram, name.c_str()), value);
+        }
         // ------------------------------------------------------------------------
         inline void setFloat(const std::string& name, float value) const
         {

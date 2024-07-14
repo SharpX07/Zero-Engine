@@ -10,6 +10,11 @@ namespace Zero
 
 	EditorViewPanel::EditorViewPanel()
 	{
+		FramebufferConfiguration config;
+		config.Height = 500;
+		config.Width = 500;
+		config.Formats = { FrameBufferFormat::RGBA8,FrameBufferFormat::R32UI,FrameBufferFormat::DEPTH24 };
+		m_FBO.Create(config);
 		InitializeShader();
 		InitializeGeometry();
 		InitializeCamera();
@@ -21,7 +26,7 @@ namespace Zero
 
 		m_FBO.Bind();
 		Renderer::Clear({ 0,0,0 ,255 });
-		Renderer::RenderOnDebug(m_FocusedScene, m_EditorCamera);
+		Renderer::RenderOnEditor(m_FocusedScene, m_EditorCamera);
 		DrawGrid();
 		m_FBO.UnBind();
 	}
@@ -70,14 +75,13 @@ namespace Zero
 		m_FBO.RescaleFramebuffer(window_width, window_height);
 		m_EditorCamera->SetViewportSize(window_width, window_height);
 		ImGui::GetWindowDrawList()->AddImage(
-			(void*)m_FBO.GetColorTexture(),
+			(void*)m_FBO.GetColorTexture(0),
 			ImVec2(windowPosition.x, windowPosition.y),
 			ImVec2(windowPosition.x + window_width, windowPosition.y + window_height),
 			ImVec2(0, 1),
 			ImVec2(1, 0)
 		);
-		ImVec2 mousePos = ImGui::GetMousePos();
-		HandleMousePick(mousePos.x, mousePos.y);
+		HandleMousePick();
 		ImGui::End();
 	}
 
@@ -86,41 +90,29 @@ namespace Zero
 		m_FocusedScene = scene;
 	}
 
-	void EditorViewPanel::HandleMousePick(int mouseX, int mouseY)
+	void EditorViewPanel::HandleMousePick()
 	{
-		// Asegúrate de que el clic está dentro de la ventana del editor
-		ImVec2 windowPos = ImGui::GetCursorScreenPos();
-		ImVec2 windowSize = ImGui::GetContentRegionAvail();
-
-		if (mouseX >= windowPos.x && mouseX < windowPos.x + windowSize.x &&
-			mouseY >= windowPos.y && mouseY < windowPos.y + windowSize.y)
+		if (!ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
-			// Ajusta las coordenadas del mouse al espacio de la textura
-			int textureX = mouseX - windowPos.x;
-			int textureY = windowSize.y - (mouseY - windowPos.y);
-
-			// Lee el color del píxel
-			m_FBO.Bind();
-			unsigned char pixel[3];
-			glReadPixels(textureX, textureY, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
-			m_FBO.UnBind();
-			ZERO_CORE_LOG_DEBUG("{0},{1},{2}", pixel[0], pixel[1], pixel[2]);
-
-			// Convierte el color a ID
-			uint64_t id = (static_cast<uint64_t>(pixel[0]) << 16) |
-				(static_cast<uint64_t>(pixel[1]) << 8) |
-				(static_cast<uint64_t>(pixel[2]));
-			ZERO_CORE_LOG_DEBUG("id:{0}", id);
-			// Busca la entidad correspondiente
-			auto entity = m_FocusedScene->GetEntityByUUID(id);
-			if (entity)
-			{
-				m_SelectedEntity = entity;
-				// La entidad fue seleccionada
-				// Aquí puedes hacer lo que necesites con la entidad seleccionada
-				// Por ejemplo, mostrar sus propiedades, resaltarla, etc.
-				std::cout << "Entidad seleccionada: " << id << std::endl;
-			}
+			return;
 		}
+		m_FBO.Bind();
+		ImVec2 mousePos = ImGui::GetMousePos();
+		ImVec2 windowSize = ImGui::GetContentRegionAvail();
+		ImVec2 panelPos = ImGui::GetCursorScreenPos();
+
+		ImVec2 localMousePos = ImVec2(mousePos.x - panelPos.x, mousePos.y - panelPos.y);
+		unsigned int pickedID = 0;
+		int mouseX = localMousePos.x;
+		int mouseY = localMousePos.y;
+		int textureX = mouseX;
+		int textureY = windowSize.y - mouseY;
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		unsigned int pixel;
+		glReadPixels(textureX, textureY, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
+		int Checkid = pixel - 1;
+		if (Checkid != -1)
+			m_SelectedEntity = { (entt::entity)Checkid,m_FocusedScene.get() };
+		m_FBO.UnBind();
 	}
 }

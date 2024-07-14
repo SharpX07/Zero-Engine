@@ -24,43 +24,51 @@ namespace Zero
 		DEPTH32F_STENCIL8 = GL_DEPTH32F_STENCIL8,
 		STENCIL8 = GL_STENCIL_INDEX8,
 		SRGB8 = GL_SRGB8,
-		SRGBA8 = GL_SRGB8_ALPHA8
+		SRGBA8 = GL_SRGB8_ALPHA8,
+		R32I = GL_R32I,
+		RG32I = GL_RG32I,
+		RGB32I = GL_RGB32I,
+		RGBA32I = GL_RGBA32I,
+		// Nuevos formatos para enteros sin signo de 32 bits
+		R32UI = GL_R32UI,
+		RG32UI = GL_RG32UI,
+		RGB32UI = GL_RGB32UI,
+		RGBA32UI = GL_RGBA32UI
+
 	};
 
 	struct FramebufferConfiguration
 	{
 		int Width;
 		int Height;
-		FrameBufferFormat Formats[3] = {};
+		std::vector<FrameBufferFormat> Formats;
 	};
 
 	class Framebuffer
 	{
 	public:
-		Framebuffer(int width, int height);
+		Framebuffer();
 		~Framebuffer();
 
+		void Create(FramebufferConfiguration configuration);
 		void Bind() const;
 		void UnBind() const;
-		int GetColorTexture() const { return m_ColorTextureId; }
-		void RescaleFramebuffer(float width, float height);
+		int GetColorTexture(int index) const { return m_ColorAttachments.at(index); }
+		void RescaleFramebuffer(int width, int height);
 	private:
-		void CreateColorAttachment(int width, int height);
-		void CreateDepthAttachment(int width, int height);
+		void AddAttachments();
 		std::string GetFramebufferStatusString(GLenum status);
+		static void GetFormatAndType(FrameBufferFormat internalFormat, GLenum& format, GLenum& type);
+
 
 	private:
+		GLuint m_Width;
+		GLuint m_Height;
 		GLuint m_FramebufferId;
 		GLuint m_ColorTextureId;
 		GLuint m_DepthRenderbufferId;
+		std::vector<GLuint> m_ColorAttachments;
+		GLuint m_DepthAttachment;
+		FramebufferConfiguration m_Configuration;
 	};
 }
-
-//{
-//	FramebufferConfiguration spec;
-//	spec.width = 500;
-//	spec.height = 500;
-//	spec.Attachments = {at1,at2,at3,at4..};
-//	Framebuffer buffer;
-//	buffer.AtachColor();
-//}

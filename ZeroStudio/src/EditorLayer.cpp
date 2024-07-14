@@ -80,14 +80,14 @@ namespace Zero
 		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(-glm::radians(0.0f), 0, 0), glm::vec3(1.0f));
 		Modelo.AddComponent<ShaderComponent>(manager.CreateResource<Shader>("Assets/shaders/Model.glsl"));
 		Modelo.AddComponent<MeshComponent>(manager.CreateResource<Model>("Assets/Models/vefq.glb"));
-		auto xd = Modelo.GetComponent<IDComponent>().Id;
+		ZERO_APP_LOG_DEBUG("Modelo.GetValue()");
+		ZERO_APP_LOG_DEBUG(Modelo.GetValue());
 		m_PreviewPanel->SetSceneFocus(newScene);
 		m_HierarchyPanel->SetSceneFocus(newScene);
 		while (!m_Window.ShouldClose()) {
 			Time_ = glfwGetTime();
 			m_EditorViewPanel->UpdateEditorCamera(0.05f);
 			m_InspectorPanel->SetEntityFocus(m_EditorViewPanel->GetSelectedEntity());
-			ZERO_CORE_LOG_DEBUG("id_pre:{0}", (uint64_t)xd);
 			m_EditorViewPanel->SetSceneFocus(newScene);
 			CameraSystem::UpdateCameras(*newScene);
 			ImGui_ImplOpenGL3_NewFrame();

@@ -12,11 +12,11 @@ namespace Zero
 	class PreviewPanel
 	{
 	public:
-		PreviewPanel() = default;
+		PreviewPanel();
 		void OnRender();
 		void SetSceneFocus(Ref<Scene> scene);
 	private:
 		Ref<Scene> m_FocusedScene;
-		Framebuffer fbo{500,500};
+		Framebuffer m_FBO;
 	};
 }

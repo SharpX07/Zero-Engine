@@ -60,7 +60,7 @@ namespace Zero
 			shader.Shader->setMat4("view", editorCamera->GetView());
 			shader.Shader->setVec3("cameraPosition", editorCamera->GetPosition());
 			shader.Shader->setVec3("lightPosition", editorCamera->GetPosition());
-
+			shader.Shader->setUInt("u_EntityId", (uint32_t)entity);
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 				auto material = mesh.Material;
 				auto properties = material.GetProperties();
@@ -97,12 +97,7 @@ namespace Zero
 			IDComponent& id = entidad.GetComponent<IDComponent>();
 			if (!model.ptr_Model) continue;
 			shader->Use();
-			
-			shader->setVec3("ColorPick", glm::vec3(
-				(((uint64_t)id.Id & 0xFF0000) >> 16) / 255.0f,  // R
-				(((uint64_t)id.Id & 0x00FF00) >> 8) / 255.0f,  // G
-				(((uint64_t)id.Id & 0x0000FF)) / 255.0f   // B
-			));
+			shader->setUInt("u_EntityId", (uint32_t)entity);
 			shader->setMat4("model", entidad.GetComponent<TransformComponent>().GetTransform());
 			shader->setMat4("projection", editorCamera->GetProjection());
 			shader->setMat4("view", editorCamera->GetView());

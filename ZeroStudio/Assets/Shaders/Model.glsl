@@ -24,7 +24,9 @@ void main()
 #type fragment
 
 #version 330 core
-out vec4 FragColor;
+layout(location = 0) out vec4 o_Fragment;     // Color normal
+
+layout(location = 1) out uint o_EntityID;      // ID de la entidad para picking
 
 in vec2 TexCoord;
 in vec3 Normal;
@@ -41,6 +43,8 @@ uniform bool hasAlbedoTexture; // Nuevo uniforme
 // Propiedades de la luz
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
+
+uniform uint u_EntityId;
 
 void main()
 {
@@ -74,8 +78,8 @@ void main()
     vec3 specular = specularStrength * spec * mix(vec3(1.0), baseColor, metallic); // Usar metallic para mezclar con el color base
 
     vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
-
+    o_Fragment = vec4(result, 1.0);
+    o_EntityID = uint(u_EntityId)+1u;
     if (transparency == 0.0) {
         discard;
     }

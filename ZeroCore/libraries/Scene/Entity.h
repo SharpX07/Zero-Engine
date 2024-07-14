@@ -58,6 +58,11 @@ namespace Zero
 			return m_Scene->m_Registry.all_of<T>(m_EntityHandler);
 		}
 
+		uint32_t GetValue()
+		{
+			return (uint32_t)m_EntityHandler;
+		}
+
 		operator bool() const { return m_EntityHandler != entt::null; }
 		operator entt::entity() const { return m_EntityHandler; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandler; }

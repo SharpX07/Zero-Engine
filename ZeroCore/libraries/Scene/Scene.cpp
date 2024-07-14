@@ -46,9 +46,11 @@ namespace Zero
 	{
 		if (m_Registry.valid(entityID))
 		{
+
 			return Entity{ entityID, this };
 		}
 		// Podrías lanzar una excepción aquí o devolver una entidad nula
+		ZERO_ASSERT(false, "xd");
 		return Entity{ entt::null, this };
 	}
 

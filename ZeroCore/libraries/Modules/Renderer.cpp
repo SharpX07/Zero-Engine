@@ -6,11 +6,12 @@
 #include <Editor/EditorCamera.h>
 #include <Core/Logger.h>
 #include <GLGraphics/ShaderParser.h>
+#include <ResourceManagement/ResourceManager.h>
+#include <Modules/EntitySelector.h>
 namespace Zero
 {
 	void Renderer::RenderOnRuntime(Scene& scene)
 	{
-		static GLTexture noTextureSample("Preloaded Texture"); // Variable estática local
 		// TODO: This would be a principal camera
 		CameraComponent& camera = scene.GetPrincipalCamera()->GetComponent<CameraComponent>();
 		Renderer::Clear({ camera.Color.r * 255.0f ,camera.Color.g * 255.0f ,camera.Color.b * 255.0f ,camera.Color.a * 255.0f });
@@ -29,7 +30,7 @@ namespace Zero
 			shader.Shader->setMat4("view", camera.camera->GetView());
 
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
-				noTextureSample.Bind(0);
+				//noTextureSample.Bind(0);
 				for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
 				{
 					const auto& texture = mesh.Material.getTextures().at(i);
@@ -45,42 +46,71 @@ namespace Zero
 		}
 	}
 
-	void Renderer::RenderOnEditor(Ref<Scene> scene, Scope<EditorCamera>& editorCamera)
+	float GetCurrentTimeInSeconds() {
+		// Obtener el tiempo actual usando el reloj de alta resolución
+		auto now = std::chrono::high_resolution_clock::now();
+
+		// Convertir el tiempo a una duración en segundos desde un tiempo inicial (epoch)
+		auto duration = std::chrono::duration<float>(now.time_since_epoch());
+
+		// Obtener el valor en segundos
+		return duration.count();
+	}
+
+	void Renderer::RenderModel(MeshComponent model, Ref<Shader> shaderInUse)
 	{
-		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
+		for (const auto& mesh : model.ptr_Model->GetMeshes()) {
+			auto material = mesh.Material;
+			auto properties = material.GetProperties();
+			shaderInUse->setVec3("albedo", properties.Albedo);
+			shaderInUse->setFloat("metallic", properties.Metallic);
+			shaderInUse->setFloat("roughness", properties.Roughness);
+			shaderInUse->setBool("hasAlbedoTexture", properties.hasAlbedoTexture);
+
+			for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
+			{
+				const auto& texture = mesh.Material.getTextures().at(i);
+				if (texture.Type == DIFFUSE)
+					texture.GlTexture->Bind(0);
+				//if (texture.Type == NORMAL)
+					//texture.GlTexture->Bind(1);
+			}
+			mesh.m_VAO->Bind();
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VertexIndices.size()), GL_UNSIGNED_INT, 0);
+			glActiveTexture(GL_TEXTURE0);
+		}
+	}
+
+	void Renderer::RenderOnEditor(Ref<Scene> scene, Scope<EditorCamera>& editorCamera, Entity selected)
+	{
+		static Ref<Shader> EditorEntityShader = ResourceManager::GetInstance().CreateResource<Shader>("Assets/Shaders/EntityEditor.glsl");
+
+		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent>();
 		for (auto entity : view)
 		{
-			auto entidad = scene->GetEntityByID(entity);
+			Entity entidad = { entity,scene.get() };
 			MeshComponent& model = entidad.GetComponent<MeshComponent>();
 			if (!model.ptr_Model) continue;
-			ShaderComponent& shader = entidad.GetComponent<ShaderComponent>();
-			shader.Shader->Use();
-			shader.Shader->setMat4("model", entidad.GetComponent<TransformComponent>().GetTransform());
-			shader.Shader->setMat4("projection", editorCamera->GetProjection());
-			shader.Shader->setMat4("view", editorCamera->GetView());
-			shader.Shader->setVec3("cameraPosition", editorCamera->GetPosition());
-			shader.Shader->setVec3("lightPosition", editorCamera->GetPosition());
-			shader.Shader->setUInt("u_EntityId", (uint32_t)entity);
-			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
-				auto material = mesh.Material;
-				auto properties = material.GetProperties();
-				shader.Shader->setVec3("albedo", properties.Albedo);
-				shader.Shader->setFloat("metallic", properties.Metallic);
-				shader.Shader->setFloat("roughness", properties.Roughness);
-				shader.Shader->setBool("hasAlbedoTexture", properties.hasAlbedoTexture);
 
-				for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
-				{
-					const auto& texture = mesh.Material.getTextures().at(i);
-					if (texture.Type == DIFFUSE)
-						texture.GlTexture->Bind(0);
-					//if (texture.Type == NORMAL)
-						//texture.GlTexture->Bind(1);
-				}
-				mesh.m_VAO->Bind();
-				glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VertexIndices.size()), GL_UNSIGNED_INT, 0);
-				glActiveTexture(GL_TEXTURE0);
-			}
+			
+			Ref<Shader> shaderInUse = EditorEntityShader;
+			if (entidad.HasComponent<ShaderComponent>())
+				shaderInUse = entidad.GetComponent<ShaderComponent>().Shader;
+
+
+			shaderInUse->Use();
+			shaderInUse->setMat4("model", entidad.GetComponent<TransformComponent>().GetTransform());
+			shaderInUse->setMat4("projection", editorCamera->GetProjection());
+			shaderInUse->setMat4("view", editorCamera->GetView());
+			shaderInUse->setVec3("cameraPosition", editorCamera->GetPosition());
+			shaderInUse->setVec3("lightPosition", editorCamera->GetPosition());
+			shaderInUse->setFloat("u_Time", GetCurrentTimeInSeconds());
+			shaderInUse->setUInt("u_EntityId", (uint32_t)entity);
+			if (entidad == EntitySelector::GetEntitySelected())
+				shaderInUse->setBool("isMarked", true);
+			else
+				shaderInUse->setBool("isMarked", false);
+			RenderModel(model, shaderInUse);
 		}
 	}
 

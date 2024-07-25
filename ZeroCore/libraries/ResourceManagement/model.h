@@ -4,6 +4,7 @@
 #include <vector>
 #include <ResourceManagement/Mesh.h>
 #include <ResourceManagement/Material.h>
+
 namespace Zero
 {
 	class Model {
@@ -25,5 +26,4 @@ namespace Zero
 		std::vector<Material>	m_Materials;
 		std::string				m_Path;
 	};
-
 }

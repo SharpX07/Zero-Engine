@@ -23,16 +23,16 @@ namespace Zero
 
 				ImGui::PushID(name.c_str());
 
-				// Comenzamos un grupo para poder posicionar el botón absolutamente
+				// Comenzamos un grupo para poder posicionar el botï¿½n absolutamente
 				ImGui::BeginGroup();
 
-				// Calculamos el ancho del header menos el espacio para el botón
+				// Calculamos el ancho del header menos el espacio para el botï¿½n
 				float headerWidth = ImGui::GetContentRegionAvail().x - 30;
 
-				// Dibujamos el header con un ancho específico
+				// Dibujamos el header con un ancho especï¿½fico
 				bool open = ImGui::CollapsingHeader(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap);
 
-				// Posicionamos el botón a la derecha del header
+				// Posicionamos el botï¿½n a la derecha del header
 				ImGui::SameLine(headerWidth);
 				if (ImGui::Button("..."))
 				{

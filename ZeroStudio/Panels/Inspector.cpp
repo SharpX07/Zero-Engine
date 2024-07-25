@@ -12,6 +12,7 @@ namespace Zero
 		ImGui::Begin("Inspector");
 		if (m_SelectedEntity.IsValid())
 		{
+
 			if (ImGui::Button("Add Component"))
 				ImGui::OpenPopup("AddComponentPopup");
 
@@ -42,29 +43,35 @@ namespace Zero
 				{
 					if (!m_SelectedEntity.HasComponent<MeshComponent>())
 					{
-						ResourceManager manager;
-						nfdu8char_t* outPath;
-						nfdopendialogu8args_t args = { 0 };
+						nfdu8char_t *outPath;
+						nfdopendialogu8args_t args = {0};
 						nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
 						if (result == NFD_OKAY)
 						{
-							m_SelectedEntity.AddComponent<MeshComponent>(manager.CreateResource<Model>(outPath));
+							m_SelectedEntity.AddComponent<MeshComponent>(ResourceManager::GetInstance().CreateResource<Model>(outPath));
 							NFD_FreePathU8(outPath);
 						}
 						else if (result == NFD_CANCEL)
-						{
 							ZERO_APP_LOG_INFO("Model loader cancelled");
-						}
 						else
-						{
 							ZERO_APP_LOG_ERROR(NFD_GetError());
-						}
 					}
 				}
 
 				if (ImGui::MenuItem("Shader Component"))
 				{
-					m_SelectedEntity.AddComponent<ShaderComponent>(CreateRef<Shader>("Assets/shaders/ModelVertex.glsl", "Assets/shaders/ModelFragment.glsl"));
+					nfdu8char_t *outPath;
+					nfdopendialogu8args_t args = {0};
+					nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+					if (result == NFD_OKAY)
+					{
+						m_SelectedEntity.AddComponent<ShaderComponent>(ResourceManager::GetInstance().CreateResource<Shader>(outPath));
+						NFD_FreePathU8(outPath);
+					}
+					else if (result == NFD_CANCEL)
+						ZERO_APP_LOG_INFO("Shader loader cancelled");
+					else
+						ZERO_APP_LOG_ERROR(NFD_GetError());
 				}
 				ImGui::EndPopup();
 			}
@@ -76,10 +83,11 @@ namespace Zero
 	}
 	void InspectorPanel::SetEntityFocus(Entity& entity)
 	{
-		m_SelectedEntity = entity;
+		if (entity.IsValid())
+			m_SelectedEntity = entity;
 	}
 
-	static void Draw3VecInput(const char* label, float* values, float resetValue = 0.0f, float columnWidth = 100.0f)
+	static void Draw3VecInput(const char *label, float *values, float resetValue = 0.0f, float columnWidth = 100.0f)
 	{
 		ImGui::PushID(label);
 
@@ -89,17 +97,17 @@ namespace Zero
 		ImGui::NextColumn();
 
 		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
 
 		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-		ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+		ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-		//if (ImGui::Button("X", buttonSize))
-			//values[0] = resetValue;
-		ImGui::ColorButton("v", ImVec4{ 255,0,0,0 });
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
+		// if (ImGui::Button("X", buttonSize))
+		// values[0] = resetValue;
+		ImGui::ColorButton("v", ImVec4{255, 0, 0, 0});
 
 		ImGui::PopStyleColor(3);
 
@@ -138,58 +146,60 @@ namespace Zero
 		ImGui::PopID();
 	}
 
-
 	void InspectorPanel::DrawComponents()
 	{
 		// Crear estilo personalizado
 
 		DrawComponent<IDComponent>("ID Component",
-			[](auto& component)
-			{
-				ImGui::Text(std::to_string(component.Id).c_str());
-			});
+								   [](auto &component)
+								   {
+									   ImGui::Text(std::to_string(component.Id).c_str());
+								   });
 		DrawComponent<TagComponent>("Tag Component",
-			[](auto& component)
-			{
-				ImGui::InputText("Name", &component.Tag);
-			});
+									[](auto &component)
+									{
+										ImGui::InputText("Name", &component.Tag);
+									});
 		DrawComponent<CameraComponent>("Camera Component",
-			[](auto& component)
-			{
-				// Selector de color RGB
-				ImGui::ColorEdit4("Color RGB", &component.Color[0]);
-				ImGui::InputFloat("Fov", &component.Fov);
-				ImGui::Checkbox("Principal Camera", &component.IsPrincipalCamera);
-			});
+									   [](auto &component)
+									   {
+										   // Selector de color RGB
+										   ImGui::ColorEdit4("Color RGB", &component.Color[0]);
+										   ImGui::InputFloat("Fov", &component.Fov);
+										   ImGui::Checkbox("Principal Camera", &component.IsPrincipalCamera);
+									   });
 		DrawComponent<TransformComponent>("Transform Component",
-			[](auto& component)
-			{
-				ImGui::InputFloat3("Position", &component.Translation[0]);
-				ImGui::Text("Rotation:");
-				ImGui::InputFloat3("Rotation", &component.Rotation[0]);
-				ImGui::Text("Scale:");
-				ImGui::InputFloat3("Scale", &component.Scale[0]);
-			});
+										  [](auto &component)
+										  {
+											  ImGui::InputFloat3("Position", &component.Translation[0]);
+											  ImGui::Text("Rotation:");
+											  ImGui::InputFloat3("Rotation", &component.Rotation[0]);
+											  ImGui::Text("Scale:");
+											  ImGui::InputFloat3("Scale", &component.Scale[0]);
+										  });
 		DrawComponent<MeshComponent>("Mesh Component",
-			[](auto& component)
-			{
-				if (component.ptr_Model)
-				{
-					auto& path = component.ptr_Model->GetPath();
-					ImGui::Text("Path: %s", path.c_str());
-					ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
-				}
-				else
-				{
-					ImGui::Text("Path: %s", "");
-					ImGui::Text("Referencias: %i", -1);
-				}
-			});
+									 [](auto &component)
+									 {
+										 if (component.ptr_Model)
+										 {
+											 auto &path = component.ptr_Model->GetPath();
+											 ImGui::Text("Path: %s", path.c_str());
+											 ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
+										 }
+										 else
+										 {
+											 ImGui::Text("Path: %s", "");
+											 ImGui::Text("Referencias: %i", -1);
+										 }
+									 });
 		DrawComponent<ShaderComponent>("Shader Component",
-			[](auto& component)
-			{
-				ImGui::Text("ProgramValue: %i", component.Shader->m_ShaderProgram);
-			});
+									   [](auto &component)
+									   {
+										   if (component.Shader)
+										   {
+											   ImGui::Text("ProgramValue: %i", component.Shader->m_ShaderProgram);
+										   }
+									   });
 	}
 
 }

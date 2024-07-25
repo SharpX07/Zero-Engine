@@ -6,6 +6,7 @@
 #include <Core/Logger.h>
 #include <Editor/EditorCamera.h>
 #include <Core/Aliases.h>
+#include <Scene/Components.h>
 
 namespace Zero
 {
@@ -20,7 +21,6 @@ namespace Zero
 		Renderer() = default;
 
 		~Renderer() = default;
-
 		inline static const void SetViewport(GLint x, GLint y, GLsizei w, GLsizei h)
 		{
 			glViewport(x, y, w, h);
@@ -34,10 +34,13 @@ namespace Zero
 		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
 		static void Render(Model& model, Shader& shader);
 		static void RenderOnRuntime(Scene& scene);
-		static void RenderOnEditor(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
+		static void RenderOnEditor(Ref<Scene> secene, Scope<EditorCamera>& editorCamera, Entity selected);
 		static void RenderOnDebug(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
 		static void Render(Shader& shader);
 		static void InitializeRenderer();
+	private:
+		static void RenderModel(MeshComponent model, Ref<Shader> shaderInUse);
+		static void RenderEntity(Entity& entidad, Scope<EditorCamera>& editorCamera, bool isOutline);
 		//static GLTexture noTextureSample;
 	};
 

@@ -6,19 +6,21 @@ namespace Zero
 	// Implementación de los métodos
 	Ref<Shader> ShaderParser::GenerateShader(const std::string& filePath)
 	{
-		ProcessShaderFile(filePath);
+		if (!ProcessShaderFile(filePath)) return nullptr;
 		Ref<Shader> newShader = CreateRef<Shader>(m_VertexSourceCode.c_str(), m_FragmentSourceCode.c_str(), ShaderSourceType::Source);
 		m_VertexSourceCode.clear();
 		m_FragmentSourceCode.clear();
 		return newShader;
 	}
 
-	void ShaderParser::ProcessShaderFile(const std::string& filePath)
+	bool ShaderParser::ProcessShaderFile(const std::string& filePath)
 	{
 		std::ifstream file(filePath);
 		if (!file.is_open())
 		{
-			throw std::runtime_error("Failed to open shader file: " + filePath);
+			ZERO_CORE_LOG_WARN("Failed to open shader file: {0}", filePath);
+			return false;
+			//throw std::runtime_error("Failed to open shader file: " + filePath);
 		}
 
 		std::string line;
@@ -28,6 +30,7 @@ namespace Zero
 		{
 			ProcessLine(line, currentShaderType);
 		}
+		return true;
 	}
 
 	void ShaderParser::ProcessLine(const std::string& line, std::string& currentShaderType)

@@ -15,6 +15,12 @@ namespace Zero
 	class ResourceManager
 	{
 	public:
+		static ResourceManager& GetInstance()
+		{
+			static ResourceManager instance;
+			return instance;
+		}
+
 		template<typename T>
 		Ref<T> CreateResource(const std::string& path)
 		{
@@ -48,7 +54,7 @@ namespace Zero
 			return nullptr;
 		}
 
-		void Clear()
+		static void Clear()
 		{
 			m_ModelResources.clear();
 			m_TextureResources.clear();

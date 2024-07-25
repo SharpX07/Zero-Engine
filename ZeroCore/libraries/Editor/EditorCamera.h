@@ -46,7 +46,6 @@ namespace Zero
 
 		void SetOrbitRadius(float radius) { m_OrbitRadius = radius; }
 		float GetOrbitRadius() const { return m_OrbitRadius; }
-		
 
 	private:
 		void HandleMouseInput(float deltaTime);

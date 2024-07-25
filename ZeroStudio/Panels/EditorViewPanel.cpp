@@ -3,7 +3,7 @@
 #include <Modules/Renderer.h>
 #include <GLGraphics/FBO.h>
 #include <Core/Aliases.h>
-
+#include <Modules/EntitySelector.h>
 
 namespace Zero
 {
@@ -13,7 +13,7 @@ namespace Zero
 		FramebufferConfiguration config;
 		config.Height = 500;
 		config.Width = 500;
-		config.Formats = { FrameBufferFormat::RGBA8,FrameBufferFormat::R32UI,FrameBufferFormat::DEPTH24 };
+		config.Formats = { FrameBufferFormat::RGBA8, FrameBufferFormat::R32UI, FrameBufferFormat::DEPTH24 };
 		m_FBO.Create(config);
 		InitializeShader();
 		InitializeGeometry();
@@ -25,27 +25,30 @@ namespace Zero
 		DrawView();
 
 		m_FBO.Bind();
-		Renderer::Clear({ 0,0,0 ,255 });
-		Renderer::RenderOnEditor(m_FocusedScene, m_EditorCamera);
+		Renderer::Clear({ 0, 0, 0, 255 });
+		Renderer::RenderOnEditor(m_FocusedScene, m_EditorCamera, m_SelectedEntity);
 		DrawGrid();
 		m_FBO.UnBind();
 	}
 
-	void EditorViewPanel::InitializeCamera() {
+	void EditorViewPanel::InitializeCamera()
+	{
 		m_EditorCamera = CreateScope<EditorCamera>();
 		m_EditorCamera->SetPerspectiveProjection(glm::radians(45.0f), 0.1f, 5000.0f);
 		m_EditorCamera->SetViewportSize(800, 800);
 		m_EditorCamera->CalculateProjection();
-		m_EditorCamera->SetPosition({ 4,4,-4 });
+		m_EditorCamera->SetPosition({ 4, 4, -4 });
 	}
 
-	void EditorViewPanel::InitializeShader() {
+	void EditorViewPanel::InitializeShader()
+	{
 
 		m_TestShader = CreateScope<Shader>("Assets/Shaders/Grid.vert", "Assets/Shaders/Grid.frag");
 	}
 
-	void EditorViewPanel::InitializeGeometry() {
-		std::vector<float> Vertices = { 0.0,0.0,0.0,0.0,0.0,0.0 ,0.0,0.0,0.0 };
+	void EditorViewPanel::InitializeGeometry()
+	{
+		std::vector<float> Vertices = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 		m_VAO = CreateScope<VAO>();
 		VertexAttributeLayout layout;
 		m_VAO->Bind();
@@ -79,8 +82,7 @@ namespace Zero
 			ImVec2(windowPosition.x, windowPosition.y),
 			ImVec2(windowPosition.x + window_width, windowPosition.y + window_height),
 			ImVec2(0, 1),
-			ImVec2(1, 0)
-		);
+			ImVec2(1, 0));
 		HandleMousePick();
 		ImGui::End();
 	}
@@ -92,27 +94,33 @@ namespace Zero
 
 	void EditorViewPanel::HandleMousePick()
 	{
-		if (!ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
-			return;
-		}
-		m_FBO.Bind();
-		ImVec2 mousePos = ImGui::GetMousePos();
-		ImVec2 windowSize = ImGui::GetContentRegionAvail();
-		ImVec2 panelPos = ImGui::GetCursorScreenPos();
+			m_FBO.Bind();
+			ImVec2 mousePos = ImGui::GetMousePos();
+			ImVec2 windowSize = ImGui::GetContentRegionAvail();
+			ImVec2 panelPos = ImGui::GetCursorScreenPos();
 
-		ImVec2 localMousePos = ImVec2(mousePos.x - panelPos.x, mousePos.y - panelPos.y);
-		unsigned int pickedID = 0;
-		int mouseX = localMousePos.x;
-		int mouseY = localMousePos.y;
-		int textureX = mouseX;
-		int textureY = windowSize.y - mouseY;
-		glReadBuffer(GL_COLOR_ATTACHMENT1);
-		unsigned int pixel;
-		glReadPixels(textureX, textureY, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
-		int Checkid = pixel - 1;
-		if (Checkid != -1)
-			m_SelectedEntity = { (entt::entity)Checkid,m_FocusedScene.get() };
-		m_FBO.UnBind();
+			ImVec2 localMousePos = ImVec2(mousePos.x - panelPos.x, mousePos.y - panelPos.y);
+			unsigned int pickedID = 0;
+			int mouseX = (int)localMousePos.x;
+			int mouseY = (int)localMousePos.y;
+			int textureX = mouseX;
+			int textureY = (int)windowSize.y - (int)mouseY;
+			glReadBuffer(GL_COLOR_ATTACHMENT1);
+			unsigned int pixel;
+			glReadPixels(textureX, textureY, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixel);
+			int Checkid = pixel - 1;
+			if (Checkid != -1)
+			{
+				EntitySelector::SetEntitySelected({ (entt::entity)Checkid, m_FocusedScene.get() });
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					m_EditorCamera->SetOrbitCenter(EntitySelector::GetEntitySelected().GetComponent<TransformComponent>().Translation);
+					m_EditorCamera->SetOrbitRadius(10);
+				}
+			}
+			m_FBO.UnBind();
+		}
 	}
 }

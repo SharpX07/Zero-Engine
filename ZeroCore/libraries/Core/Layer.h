@@ -7,13 +7,14 @@ namespace Zero
 	public:
 		Layer();
 		virtual ~Layer();
-		virtual void OnEvent(Event& e) {}
-		virtual void OnAttach(){}
+		virtual void OnEvent(Event &e) {}
+		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(float deltaTime) {}
 		bool IsActive() { return m_IsActive; }
 		bool SetActive(bool active) { m_IsActive = active; }
-	private:
+
+	protected:
 		bool m_IsActive;
 	};
 }

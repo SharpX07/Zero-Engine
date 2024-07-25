@@ -7,7 +7,7 @@
 #include <Panels/Hierarchy.h>
 #include <Panels/PreviewPanel.h>
 #include <Panels/EditorViewPanel.h>
-
+#include <Editor/ImguiLayer.h>
 namespace Zero
 {
 	class Editor : public Application
@@ -27,6 +27,7 @@ namespace Zero
 
     // Panels
 	private:
+		ImguiLayer m_ImguiLayer;
 		Scope<PreviewPanel> m_PreviewPanel;
 		Scope<InspectorPanel> m_InspectorPanel;
 		Scope<EditorViewPanel> m_EditorViewPanel;

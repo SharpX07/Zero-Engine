@@ -1,51 +1,40 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "EditorLayer.h"
-#include <GLGraphics/Shader.h>
-#include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <functional>
+#include <core/Input.h>
 #include <Events/KeyEvents.h>
 #include <Events/MouseEvents.h>
 #include <Events/WindowEvents.h>
-#include <core/Input.h>
 #include <Scene/Scene.h>
 #include <Scene/Entity.h>
 #include <Scene/Components.h>
-#include <Modules/CameraUpdater.h>
-#include <glm/gtx/string_cast.hpp>
 #include <Modules/Renderer.h>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include <ResourceManagement/ResourceManager.h>
+#include <Modules/CameraUpdater.h>
+#include <Modules/EntitySelector.h>
 #include <nfd.h>
-#include <GLGraphics/ShaderParser.h>
+#include <core/Timer.h>
+
 namespace Zero
 {
 	Editor::Editor()
 	{
 		newScene = nullptr;
 		m_Logger.initialize();
-		Resolution_ = glm::uvec2(1280, 720);
 		this->Time_ = 0.0f;
 		NFD_Init();
 		m_Window.Initialize();
 		m_Window.SetEventCallback(std::bind(&Editor::OnEvent, this, std::placeholders::_1));
-		m_Window.Create(Resolution_.x, Resolution_.y, "Zero Engine");
+		m_Window.Create(800, 600, "Zero Engine");
 		m_Window.InitializeGLAD();
 		Renderer::SetViewport(0, 0, 100, 800);
 		Renderer::InitializeRenderer();
 		Renderer::EnableCapability(GL_DEPTH_TEST);
 		Renderer::EnableCapability(GL_BLEND);
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		ImGui::StyleColorsDark();
-		ImGui_ImplGlfw_InitForOpenGL(m_Window.glfwWindowHandle, true);
-		ImGui_ImplOpenGL3_Init("#version 330");
-
+		m_ImguiLayer.OnAttach();
 		m_EditorViewPanel = CreateScope<EditorViewPanel>();
 		m_HierarchyPanel = CreateScope<HierarchyPanel>();
 		m_InspectorPanel = CreateScope<InspectorPanel>();
@@ -64,7 +53,6 @@ namespace Zero
 		Dispatcher.Dispatch<WindowResizeEvent>([this](Event& e)
 			{
 				auto resizeEvent = static_cast<WindowResizeEvent&>(e);
-				Resolution_ = glm::uvec2(resizeEvent.GetWidth(), resizeEvent.GetHeight());
 				return true;
 			});
 
@@ -73,39 +61,28 @@ namespace Zero
 
 	void Editor::Run()
 	{
-		ResourceManager manager;
 		newScene = CreateRef<Scene>();
-		Entity Modelo = newScene->CreateEntity();
-
-		Modelo.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(-glm::radians(0.0f), 0, 0), glm::vec3(1.0f));
-		Modelo.AddComponent<ShaderComponent>(manager.CreateResource<Shader>("Assets/shaders/Model.glsl"));
-		Modelo.AddComponent<MeshComponent>(manager.CreateResource<Model>("Assets/Models/vefq.glb"));
-		ZERO_APP_LOG_DEBUG("Modelo.GetValue()");
-		ZERO_APP_LOG_DEBUG(Modelo.GetValue());
 		m_PreviewPanel->SetSceneFocus(newScene);
 		m_HierarchyPanel->SetSceneFocus(newScene);
+		Timer timer;
+		timer.Start();
 		while (!m_Window.ShouldClose()) {
-			Time_ = glfwGetTime();
-			m_EditorViewPanel->UpdateEditorCamera(0.05f);
-			m_InspectorPanel->SetEntityFocus(m_EditorViewPanel->GetSelectedEntity());
+			float deltaTime = timer.GetElapsedTime();
+			timer.Reset();
+			m_EditorViewPanel->UpdateEditorCamera(deltaTime);
+			m_PreviewPanel->SetSceneFocus(newScene);
 			m_EditorViewPanel->SetSceneFocus(newScene);
+			m_InspectorPanel->SetEntityFocus(EntitySelector::GetEntitySelected());
 			CameraSystem::UpdateCameras(*newScene);
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			Renderer::Clear({ 0,0,0,255 });
-			// Iniciar nuevo frame de ImGui
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-			// Crear ventana de dockspace
-			ImGui::DockSpaceOverViewport();
-			// Render Panels
+			
+			// Render Panelscls
+			m_ImguiLayer.Begin();
 			m_HierarchyPanel->OnRender();
 			m_InspectorPanel->OnRender();
 			m_PreviewPanel->OnRender();
 			m_EditorViewPanel->OnRender();
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			m_ImguiLayer.End();
+
 			m_Window.Update();
 		}
 	}
@@ -113,9 +90,7 @@ namespace Zero
 	void Editor::Stop()
 	{
 		// Limpiar
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
+		m_ImguiLayer.OnDetach();
 		NFD_Quit();
 		glfwDestroyWindow(m_Window.glfwWindowHandle);
 		glfwTerminate();

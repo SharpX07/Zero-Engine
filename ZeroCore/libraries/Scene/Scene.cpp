@@ -50,7 +50,6 @@ namespace Zero
 			return Entity{ entityID, this };
 		}
 		// Podrías lanzar una excepción aquí o devolver una entidad nula
-		ZERO_ASSERT(false, "xd");
 		return Entity{ entt::null, this };
 	}
 

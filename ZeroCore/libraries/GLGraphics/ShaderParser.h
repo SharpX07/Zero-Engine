@@ -12,7 +12,7 @@ namespace Zero
     public:
         ShaderParser() = default;
         ~ShaderParser() = default;
-        void ProcessShaderFile(const std::string& filePath);
+        bool ProcessShaderFile(const std::string& filePath);
         Ref<Shader> GenerateShader(const std::string& filePath);
         // Verifica si un tipo de shader específico está presente
         bool HasShaderType(const std::string& shaderType) const;

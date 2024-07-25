@@ -6,13 +6,14 @@
 #include <GLGraphics/ShaderParser.h>
 #include <ResourceManagement/ResourceManager.h>
 #include <nfd.h>
+#include <Modules/EntitySelector.h>
 namespace Zero
 {
 	void HierarchyPanel::OnRender()
 	{
 		ImGui::Begin("Hierarchy");
 
-		// Menú contextual para el panel de jerarquía
+		// Menï¿½ contextual para el panel de jerarquï¿½a
 		if (ImGui::BeginPopupContextWindow("HierarchyContextMenu"))
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
@@ -24,7 +25,7 @@ namespace Zero
 				}
 			}
 
-			// Puedes agregar más opciones aquí, por ejemplo:
+			// Puedes agregar mï¿½s opciones aquï¿½, por ejemplo:
 			if (ImGui::MenuItem("Create Camera"))
 			{
 				if (m_FocusedScene)
@@ -50,7 +51,7 @@ namespace Zero
 					nfdopendialogu8args_t args = { 0 };
 					Entity new3DObject = m_FocusedScene->CreateEntity();
 					new3DObject.AddComponent<TransformComponent>();
-					new3DObject.AddComponent<ShaderComponent>(parser.GenerateShader("Assets/Shaders/Model.glsl"));
+					new3DObject.AddComponent<ShaderComponent>(ResourceManager::GetInstance().CreateResource<Shader>("Assets/Shaders/EntityEditor.glsl"));
 					nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
 					if (result == NFD_OKAY)
 					{
@@ -58,13 +59,9 @@ namespace Zero
 						NFD_FreePathU8(outPath);
 					}
 					else if (result == NFD_CANCEL)
-					{
 						ZERO_APP_LOG_INFO("Model loader cancelled");
-					}
 					else
-					{
 						ZERO_APP_LOG_ERROR(NFD_GetError());
-					}
 					m_SelectedEntity = new3DObject;
 				}
 			}
@@ -74,7 +71,6 @@ namespace Zero
 
 		DrawEntityNodes();
 
-		// Detectar clic derecho en el espacio vacío del panel
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered())
 		{
 			ImGui::OpenPopup("HierarchyContextMenu");
@@ -98,25 +94,21 @@ namespace Zero
 			bool node_open = ImGui::TreeNode(tempEntity.Tag.c_str());
 
 			if (ImGui::IsItemClicked()) {
-				// El nodo fue clickeado
-				m_SelectedEntity = m_FocusedScene->GetEntityByID(entity);
+				EntitySelector::SetEntitySelected({entity,m_FocusedScene.get()});
 			}
-			// Menú contextual para clic derecho
+			// Right click menu context
 			if (ImGui::BeginPopupContextItem()) {
 				if (ImGui::MenuItem("Delete Entity")) {
-					// Lógica para borrar la entidad
 					m_FocusedScene->DestroyEntity(m_FocusedScene->GetEntityByID(entity));
 					ImGui::EndPopup();
 					if (node_open) {
 						ImGui::TreePop();
 					}
-					continue; // Saltar al siguiente ciclo ya que esta entidad ya no existe
+					continue;
 				}
-				// Puedes añadir más opciones al menú aquí
 				ImGui::EndPopup();
 			}
 			if (node_open) {
-				// Aquí puedes agregar más contenido para el nodo si es necesario
 				ImGui::TreePop();
 			}
 		}

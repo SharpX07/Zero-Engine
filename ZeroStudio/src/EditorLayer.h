@@ -13,8 +13,7 @@ namespace Zero
 	class Editor : public Application
 	{
 	public:
-		glm::uvec2 Resolution_;
-		double Time_;
+
 		Editor();
 		GLFWwindow* GetGlfwWindow() override;
 		void Run()  override;

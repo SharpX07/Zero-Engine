@@ -47,7 +47,6 @@ uniform vec3 cameraPosition;
 uniform uint u_EntityId;
 
 // Uniform para indicar si el objeto está marcado
-uniform bool isMarked;
 
 void main()
 {
@@ -61,12 +60,6 @@ void main()
     } else {
         baseColor = albedo; // Usar solo el color de albedo
         transparency = 1.0;
-    }
-
-    // Efecto de puntos si el objeto está marcado
-    if (isMarked) {
-        float pattern = step(0.5, mod(floor(TexCoord.x * 10.0) + floor(TexCoord.y * 10.0), 2.0));
-        baseColor = mix(baseColor, Normal, pattern); // Alternar entre el color base y rojo
     }
 
     // ambient

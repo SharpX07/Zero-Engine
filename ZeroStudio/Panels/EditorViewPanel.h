@@ -30,6 +30,7 @@ namespace Zero
 		void DrawGrid();
 		void DrawView();
 		void HandleMousePick();
+		void ManipulateObject(TransformComponent& transform);
 		Ref<Scene> m_FocusedScene;
 		Framebuffer m_FBO;
 		Scope<Shader> m_TestShader;

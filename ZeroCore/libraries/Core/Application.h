@@ -12,11 +12,13 @@ namespace Zero
 	{
 	public:
 		Application() { m_Instance = this; }
-		static Application* GetInstance() { return m_Instance; };
+		static Application* GetInstance() { return m_Instance; }
+		static glm::uvec2 GetResolution() { return m_Resolution; }
 		virtual GLFWwindow* GetGlfwWindow() = 0;
 		virtual void Run() = 0;
 		virtual void Stop() = 0;
-	private:
+	protected:
 		static Application* m_Instance;
+		static glm::uvec2 m_Resolution;
 	};
 }

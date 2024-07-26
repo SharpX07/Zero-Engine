@@ -17,6 +17,7 @@
 #include <Modules/EntitySelector.h>
 #include <nfd.h>
 #include <core/Timer.h>
+#include <ImGuizmo.h>
 
 namespace Zero
 {
@@ -24,11 +25,12 @@ namespace Zero
 	{
 		newScene = nullptr;
 		m_Logger.initialize();
-		this->Time_ = 0.0f;
+		//this->Time_ = 0.0f;
 		NFD_Init();
 		m_Window.Initialize();
 		m_Window.SetEventCallback(std::bind(&Editor::OnEvent, this, std::placeholders::_1));
-		m_Window.Create(800, 600, "Zero Engine");
+		m_Resolution = { 1280,720 };
+		m_Window.Create(m_Resolution.x, m_Resolution.y, "Zero Engine");
 		m_Window.InitializeGLAD();
 		Renderer::SetViewport(0, 0, 100, 800);
 		Renderer::InitializeRenderer();
@@ -53,12 +55,13 @@ namespace Zero
 		Dispatcher.Dispatch<WindowResizeEvent>([this](Event& e)
 			{
 				auto resizeEvent = static_cast<WindowResizeEvent&>(e);
+				m_Resolution = {resizeEvent.GetWidth(), resizeEvent.GetHeight()};
 				return true;
 			});
 
 		Input::OnEvent(e);
 	}
-
+	
 	void Editor::Run()
 	{
 		newScene = CreateRef<Scene>();
@@ -69,14 +72,16 @@ namespace Zero
 		while (!m_Window.ShouldClose()) {
 			float deltaTime = timer.GetElapsedTime();
 			timer.Reset();
+
+			CameraSystem::UpdateCameras(*newScene);
 			m_EditorViewPanel->UpdateEditorCamera(deltaTime);
 			m_PreviewPanel->SetSceneFocus(newScene);
 			m_EditorViewPanel->SetSceneFocus(newScene);
 			m_InspectorPanel->SetEntityFocus(EntitySelector::GetEntitySelected());
-			CameraSystem::UpdateCameras(*newScene);
 			
 			// Render Panelscls
 			m_ImguiLayer.Begin();
+			
 			m_HierarchyPanel->OnRender();
 			m_InspectorPanel->OnRender();
 			m_PreviewPanel->OnRender();

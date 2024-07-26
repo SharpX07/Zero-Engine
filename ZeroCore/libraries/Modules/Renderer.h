@@ -32,7 +32,6 @@ namespace Zero
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
-		static void Render(Model& model, Shader& shader);
 		static void RenderOnRuntime(Scene& scene);
 		static void RenderOnEditor(Ref<Scene> secene, Scope<EditorCamera>& editorCamera, Entity selected);
 		static void RenderOnDebug(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
@@ -41,7 +40,8 @@ namespace Zero
 	private:
 		static void RenderModel(MeshComponent model, Ref<Shader> shaderInUse);
 		static void RenderEntity(Entity& entidad, Scope<EditorCamera>& editorCamera, bool isOutline);
-		//static GLTexture noTextureSample;
+		static void RenderBox(Entity& entity, Scope<EditorCamera>& editorCamera);
+		static Ref<Model> m_BoxModel;
 	};
 
 

@@ -4,6 +4,9 @@
 #include <GLGraphics/FBO.h>
 #include <Core/Aliases.h>
 #include <Modules/EntitySelector.h>
+#include <ImGuizmo.h>
+#include <glm/gtc/type_ptr.hpp>
+
 
 namespace Zero
 {
@@ -42,7 +45,6 @@ namespace Zero
 
 	void EditorViewPanel::InitializeShader()
 	{
-
 		m_TestShader = CreateScope<Shader>("Assets/Shaders/Grid.vert", "Assets/Shaders/Grid.frag");
 	}
 
@@ -68,6 +70,53 @@ namespace Zero
 		m_VAO->UnBind();
 	}
 
+	void EditorViewPanel::ManipulateObject(TransformComponent& transform)
+	{
+		static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
+		static ImGuizmo::MODE currentGizmoMode(ImGuizmo::LOCAL);
+
+		if (ImGui::IsKeyPressed(ImGuiKey_T))
+			currentGizmoOperation = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(ImGuiKey_R))
+			currentGizmoOperation = ImGuizmo::ROTATE;
+		if (ImGui::IsKeyPressed(ImGuiKey_S))
+			currentGizmoOperation = ImGuizmo::SCALE;
+		
+		glm::mat4 view = m_EditorCamera->GetView() ;
+		glm::mat4 projection = m_EditorCamera->GetProjection();
+		static glm::mat4 modelMatrix = transform.GetTransform();
+		ImGuizmo::SetOrthographic(false);
+		ImGuizmo::SetDrawlist();
+
+		// Obtener la posición y tamaño de la ventana de ImGui actual
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		ImVec2 windowSize = ImGui::GetWindowSize();
+		ImVec2 canvasPos = ImGui::GetCursorScreenPos();
+
+		// Calcular el tamaño del área de dibujo dentro de la ventana de ImGui
+		ImVec2 canvasSize = ImGui::GetContentRegionAvail();
+
+		// Configurar el viewport para ImGuizmo
+		ImGuizmo::SetRect(canvasPos.x, canvasPos.y, canvasSize.x, canvasSize.y);
+
+		ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
+			currentGizmoOperation, currentGizmoMode,
+			glm::value_ptr(modelMatrix), nullptr, nullptr);
+
+		if (ImGuizmo::IsUsing())
+		{
+			glm::vec3 translation, rotation, scale;
+			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(modelMatrix),
+				glm::value_ptr(translation),
+				glm::value_ptr(rotation),
+				glm::value_ptr(scale));
+
+			transform.Translation = translation;
+			transform.Rotation = glm::radians(rotation);
+			transform.Scale = scale;
+		}
+	}
+
 	void EditorViewPanel::DrawView()
 	{
 		ImGui::Begin("Game Window");
@@ -84,6 +133,14 @@ namespace Zero
 			ImVec2(0, 1),
 			ImVec2(1, 0));
 		HandleMousePick();
+		Entity entitySelected = EntitySelector::GetEntitySelected();
+		if (entitySelected.IsValid())
+		{
+			auto& modelMatrix = entitySelected.GetComponent<TransformComponent>();
+			ManipulateObject(modelMatrix);
+		}
+		
+
 		ImGui::End();
 	}
 

@@ -8,8 +8,12 @@
 #include <GLGraphics/ShaderParser.h>
 #include <ResourceManagement/ResourceManager.h>
 #include <Modules/EntitySelector.h>
+#include <Core/Timer.h>
+#include <Core/Application.h>
 namespace Zero
 {
+	Ref<Model> Renderer::m_BoxModel;
+	
 	void Renderer::RenderOnRuntime(Scene& scene)
 	{
 		// TODO: This would be a principal camera
@@ -46,17 +50,6 @@ namespace Zero
 		}
 	}
 
-	float GetCurrentTimeInSeconds() {
-		// Obtener el tiempo actual usando el reloj de alta resolución
-		auto now = std::chrono::high_resolution_clock::now();
-
-		// Convertir el tiempo a una duración en segundos desde un tiempo inicial (epoch)
-		auto duration = std::chrono::duration<float>(now.time_since_epoch());
-
-		// Obtener el valor en segundos
-		return duration.count();
-	}
-
 	void Renderer::RenderModel(MeshComponent model, Ref<Shader> shaderInUse)
 	{
 		for (const auto& mesh : model.ptr_Model->GetMeshes()) {
@@ -84,67 +77,63 @@ namespace Zero
 	void Renderer::RenderOnEditor(Ref<Scene> scene, Scope<EditorCamera>& editorCamera, Entity selected)
 	{
 		static Ref<Shader> EditorEntityShader = ResourceManager::GetInstance().CreateResource<Shader>("Assets/Shaders/EntityEditor.glsl");
-
-		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent>();
-		for (auto entity : view)
+		for (auto enttValue : scene->GetAllEntitiesWith<TransformComponent, MeshComponent>())
 		{
-			Entity entidad = { entity,scene.get() };
-			MeshComponent& model = entidad.GetComponent<MeshComponent>();
+			Entity entity = { enttValue,scene.get() };
+			MeshComponent& model = entity.GetComponent<MeshComponent>();
 			if (!model.ptr_Model) continue;
 
-			
+
 			Ref<Shader> shaderInUse = EditorEntityShader;
-			if (entidad.HasComponent<ShaderComponent>())
-				shaderInUse = entidad.GetComponent<ShaderComponent>().Shader;
+			if (entity.HasComponent<ShaderComponent>())
+				shaderInUse = entity.GetComponent<ShaderComponent>().Shader;
 
 
 			shaderInUse->Use();
-			shaderInUse->setMat4("model", entidad.GetComponent<TransformComponent>().GetTransform());
+			shaderInUse->setMat4("model", entity.GetComponent<TransformComponent>().GetTransform());
 			shaderInUse->setMat4("projection", editorCamera->GetProjection());
 			shaderInUse->setMat4("view", editorCamera->GetView());
 			shaderInUse->setVec3("cameraPosition", editorCamera->GetPosition());
 			shaderInUse->setVec3("lightPosition", editorCamera->GetPosition());
-			shaderInUse->setFloat("u_Time", GetCurrentTimeInSeconds());
 			shaderInUse->setUInt("u_EntityId", (uint32_t)entity);
-			if (entidad == EntitySelector::GetEntitySelected())
-				shaderInUse->setBool("isMarked", true);
-			else
-				shaderInUse->setBool("isMarked", false);
+			shaderInUse->setVec2("u_Resolution", Application::GetInstance()->GetResolution());
+
+
 			RenderModel(model, shaderInUse);
-		}
-	}
-
-	void Renderer::RenderOnDebug(Ref<Scene> scene, Scope<EditorCamera>& editorCamera)
-	{
-		auto view = scene->GetAllEntitiesWith<TransformComponent, MeshComponent, ShaderComponent>();
-		static ShaderParser parser;
-		static Ref<Shader> shader = parser.GenerateShader("Assets/Shaders/ColorPicking.glsl");
-		for (auto entity : view)
-		{
-
-			auto entidad = scene->GetEntityByID(entity);
-			MeshComponent& model = entidad.GetComponent<MeshComponent>();
-			IDComponent& id = entidad.GetComponent<IDComponent>();
-			if (!model.ptr_Model) continue;
-			shader->Use();
-			shader->setUInt("u_EntityId", (uint32_t)entity);
-			shader->setMat4("model", entidad.GetComponent<TransformComponent>().GetTransform());
-			shader->setMat4("projection", editorCamera->GetProjection());
-			shader->setMat4("view", editorCamera->GetView());
-
-			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
-				mesh.m_VAO->Bind();
-				glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(mesh.VertexIndices.size()), GL_UNSIGNED_INT, 0);
-				glActiveTexture(GL_TEXTURE0);
+			if (entity == EntitySelector::GetEntitySelected())
+			{
+				RenderBox(entity, editorCamera);
 			}
 		}
 	}
 
-	void Renderer::Render(Shader& shader)
+	void Renderer::RenderBox(Entity& entity, Scope<EditorCamera>& editorCamera)
 	{
+		static ShaderParser parser;
+		static Ref<Shader> FlatShader = parser.GenerateShader("Assets/Shaders/FlatColor.glsl");
+		glm::mat4 transform = entity.GetComponent<TransformComponent>().GetTransform();
+		MeshComponent& model = entity.GetComponent<MeshComponent>();
+		auto boundingBox = model.ptr_Model->GetBoundingBox();
+		
+		glm::vec3 center = (boundingBox.min+ boundingBox.max) * 0.5f;
+		glm::vec3 scale = boundingBox.max - boundingBox.min;
+		glm::mat4 bbTransform = glm::mat4(1.0f);
+		bbTransform = glm::translate(bbTransform, center);
+		bbTransform = glm::scale(bbTransform, scale);
 
+		FlatShader->Use();
+		FlatShader->setMat4("model", transform*bbTransform);
+		FlatShader->setMat4("projection", editorCamera->GetProjection());
+		FlatShader->setMat4("view", editorCamera->GetView());
+		FlatShader->setVec3("cameraPosition", editorCamera->GetPosition());
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Modo de líneas
+		m_BoxModel->GetMeshes().at(0).m_VAO->Bind();
+		glLineWidth(2);
+		glDrawElements(GL_LINE_STRIP, static_cast<unsigned int>(m_BoxModel->GetMeshes().at(0).VertexIndices.size()), GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Volver al modo de relleno
+		glLineWidth(1);
 	}
-
 	void Renderer::InitializeRenderer()
 	{
 		//noTextureSample = GLTexture("Assets/Core/Textures/missing_texture.jpg");
@@ -152,5 +141,7 @@ namespace Zero
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 		ZERO_CORE_LOG_INFO("Loading default texture");
+
+		m_BoxModel = ResourceManager::GetInstance().CreateResource<Model>("Assets/Models/SimpleCube.obj");
 	}
 }

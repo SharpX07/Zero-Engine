@@ -19,9 +19,9 @@ namespace Zero
 		const aiScene* scene = importer.ReadFile(_modelPath,
 			aiProcess_Triangulate |
 			aiProcess_FlipUVs |
-			aiProcess_GenSmoothNormals |
 			aiProcess_JoinIdenticalVertices |
-			aiProcess_PreTransformVertices);
+			aiProcess_PreTransformVertices |
+			aiProcess_GenBoundingBoxes);
 
 		if (!scene) {
 			ZERO_APP_LOG_ERROR(importer.GetErrorString());
@@ -50,7 +50,6 @@ namespace Zero
 					auto& properties = newMaterial.GetProperties();
 					properties.hasAlbedoTexture = true;
 				}
-
 			}
 			for (const auto& texture : textures)
 				newMaterial.addTexture(texture);
@@ -108,11 +107,18 @@ namespace Zero
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			aiAABB meshBB = mesh->mAABB;
+			glm::vec3 minBB = AssimpToGLM(meshBB.mMin);
+			glm::vec3 maxBB = AssimpToGLM(meshBB.mMax);
+			// Actualizar el bounding box del modelo
+			BoundingBox bb;
+			bb.min = glm::min(model->GetBoundingBox().min, minBB);
+			bb.max = glm::max(model->GetBoundingBox().max, maxBB);
+			model->SetBoundingBox(bb);
 			model->addMesh(loadMesh(mesh, scene, model, matrixTransformation));
 		}
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
 		{
-
 			ExploreNode(node->mChildren[i], scene, model, matrixTransformation + AssimpToGLM(node->mChildren[i]->mTransformation));
 		}
 	}

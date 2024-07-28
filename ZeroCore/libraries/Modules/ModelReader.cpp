@@ -9,13 +9,14 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <Core/Logger.h>
 #include <Core/UUID.h>
+#include <ResourceManagement/ResourceManager.h>
 namespace Zero
 {
 	Ref<Model> ModelImporter::loadModel(const char* _modelPath)
 	{
 
 		Assimp::Importer importer;
-		Ref<Model> newModel = std::make_shared<Model>();
+		Ref<Model> newModel = CreateRef<Model>();
 		const aiScene* scene = importer.ReadFile(_modelPath,
 			aiProcess_Triangulate |
 			aiProcess_FlipUVs |
@@ -25,13 +26,11 @@ namespace Zero
 
 		if (!scene) {
 			ZERO_APP_LOG_ERROR(importer.GetErrorString());
-			return NULL;
+			return nullptr;
 		}
 		newModel->SetPath(_modelPath);
-
 		LoadModelMaterials(scene, newModel);
 		ExploreNode(scene->mRootNode, scene, newModel, AssimpToGLM(scene->mRootNode->mTransformation));
-		m_MeshTexturesLoaded.clear();
 		return newModel;
 	}
 
@@ -166,40 +165,21 @@ namespace Zero
 			{
 				MeshTexture texture;
 				aiString texturePath;
-
-				bool hasTexture = false;
-				if (mat->GetTexture(textureType, i, &texturePath))
-				{
-					hasTexture = true;
-					std::string convertedPath(model->GetPath());
-					texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
-					texture.Type = meshTextureType;
-				}
-
-
+				std::string convertedPath(model->GetPath());
+				texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
+				texture.Type = meshTextureType;
+				bool hasTexture = mat->GetTexture(textureType, i, &texturePath);
 				auto embeddedTexture = scene->GetEmbeddedTexture(texturePath.C_Str());
 				if (embeddedTexture)
 				{
-					std::string convertedPath(model->GetPath());
-					texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
-					texture.Type = meshTextureType;
+					std::string embeddedTextureIndex(texturePath.C_Str());
+					if (!embeddedTextureIndex.empty() && embeddedTextureIndex[0] == '*')
+						embeddedTextureIndex = embeddedTextureIndex.substr(1);
+					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(model->GetPath() + embeddedTextureIndex, reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth);
 				}
-				// Looking for textures preloaded
-				auto it = std::find_if(m_MeshTexturesLoaded.begin(), m_MeshTexturesLoaded.end(),
-					[&texture](const auto& meshTexture) {
-						return meshTexture.Identifier == texture.Identifier;
-					});
-
-				if (it != m_MeshTexturesLoaded.end())
-					texture.GlTexture = it->GlTexture;
-				else {
-					if (embeddedTexture)
-						texture.GlTexture = std::make_shared<GLTexture>("", true, reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth);
-					else if (hasTexture)
-						texture.GlTexture = std::make_shared<GLTexture>(texture.Path.c_str());
-					texture.Identifier = UUID();
-					m_MeshTexturesLoaded.push_back(texture);
-				}
+				else if (hasTexture)
+					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(texture.Path.c_str());
+				texture.Identifier = UUID();
 				textures.push_back(texture);
 			}
 			return mat->GetTextureCount(textureType);

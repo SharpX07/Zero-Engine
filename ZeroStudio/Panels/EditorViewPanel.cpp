@@ -6,7 +6,7 @@
 #include <Modules/EntitySelector.h>
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <Events/MouseEvents.h>
 
 namespace Zero
 {
@@ -34,13 +34,32 @@ namespace Zero
 		m_FBO.UnBind();
 	}
 
+	void EditorViewPanel::OnEvent(Event& e)
+	{
+		if (!m_IsFocused)
+			return;
+
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<MouseButtonPressedEvent>([this](Event& e)
+			{
+				MouseButtonPressedEvent mouseEvent = static_cast<MouseButtonPressedEvent&>(e);
+				if (mouseEvent.GetMouseButton() == MouseCode(MouseButton::LEFT))
+				{
+					m_PendingMousePickEvent = true;
+					return true;
+				}
+				return false;
+			});
+	}
+
 	void EditorViewPanel::InitializeCamera()
 	{
 		m_EditorCamera = CreateScope<EditorCamera>();
 		m_EditorCamera->SetPerspectiveProjection(glm::radians(45.0f), 0.1f, 5000.0f);
 		m_EditorCamera->SetViewportSize(800, 800);
 		m_EditorCamera->CalculateProjection();
-		m_EditorCamera->SetPosition({ 4, 4, -4 });
+		m_EditorCamera->SetPosition({ 4, 4, 4 });
+		ZERO_APP_LOG_DEBUG(glm::to_string(m_EditorCamera->GetPosition()));
 	}
 
 	void EditorViewPanel::InitializeShader()
@@ -81,22 +100,21 @@ namespace Zero
 			currentGizmoOperation = ImGuizmo::ROTATE;
 		if (ImGui::IsKeyPressed(ImGuiKey_S))
 			currentGizmoOperation = ImGuizmo::SCALE;
-		
-		glm::mat4 view = m_EditorCamera->GetView() ;
+
+		glm::mat4 view = m_EditorCamera->GetView();
 		glm::mat4 projection = m_EditorCamera->GetProjection();
-		static glm::mat4 modelMatrix = transform.GetTransform();
+
+		glm::mat4 modelMatrix = transform.GetTransform();
+
 		ImGuizmo::SetOrthographic(false);
 		ImGuizmo::SetDrawlist();
 
-		// Obtener la posición y tamaño de la ventana de ImGui actual
 		ImVec2 windowPos = ImGui::GetWindowPos();
 		ImVec2 windowSize = ImGui::GetWindowSize();
 		ImVec2 canvasPos = ImGui::GetCursorScreenPos();
 
-		// Calcular el tamaño del área de dibujo dentro de la ventana de ImGui
 		ImVec2 canvasSize = ImGui::GetContentRegionAvail();
 
-		// Configurar el viewport para ImGuizmo
 		ImGuizmo::SetRect(canvasPos.x, canvasPos.y, canvasSize.x, canvasSize.y);
 
 		ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection),
@@ -120,6 +138,8 @@ namespace Zero
 	void EditorViewPanel::DrawView()
 	{
 		ImGui::Begin("Game Window");
+		m_IsFocused = ImGui::IsWindowFocused();
+
 		ImVec2 windowPosition = ImGui::GetCursorScreenPos();
 		const float window_width = ImGui::GetContentRegionAvail().x;
 		const float window_height = ImGui::GetContentRegionAvail().y;
@@ -132,15 +152,16 @@ namespace Zero
 			ImVec2(windowPosition.x + window_width, windowPosition.y + window_height),
 			ImVec2(0, 1),
 			ImVec2(1, 0));
-		HandleMousePick();
-		Entity entitySelected = EntitySelector::GetEntitySelected();
-		if (entitySelected.IsValid())
+		if (m_IsFocused)
 		{
-			auto& modelMatrix = entitySelected.GetComponent<TransformComponent>();
-			ManipulateObject(modelMatrix);
+			if (m_PendingMousePickEvent && !ImGuizmo::IsUsing() && !ImGuizmo::IsOver())
+			{
+				HandleMousePick();
+				m_PendingMousePickEvent = false;
+			}
+			if (EntitySelector::GetEntitySelected().IsValid())
+				ManipulateObject(EntitySelector::GetEntitySelected().GetComponent<TransformComponent>());
 		}
-		
-
 		ImGui::End();
 	}
 

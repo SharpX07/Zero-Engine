@@ -1,7 +1,7 @@
-#include "EditorLayer.h"
+#include "Editor.h"
+
 int main() {
-	Zero::Editor editor;
+	Zero::ZeroStudio editor;
 	editor.Run();
 	editor.Stop();
-	return 0;
 }

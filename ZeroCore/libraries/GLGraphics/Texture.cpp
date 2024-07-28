@@ -8,65 +8,77 @@
 
 namespace Zero
 {
-	GLTexture::GLTexture(const char* path, bool embedded, unsigned char* data, int size)
+	// Load a texture with a file
+	GLTexture::GLTexture(const char* path)
 	{
-		if (embedded)
+		if (LoadTextureFromFile(m_Width, m_Height, m_NrChannels, path) != 0)
 		{
-			if (LoadTextureFromMemory(data, size, m_width, m_height, m_nrChannels) != 0)
-			{
-
-				ZERO_CORE_LOG_WARN("Embedded Texture not loaded");
-				LoadTextureFromFile(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
-			}
+			ZERO_CORE_LOG_WARN("Texture missing on: {0}", path);
+			LoadTextureFromFile(m_Width, m_Height, m_NrChannels, "Assets/Core/Textures/missing_texture.jpg");
 		}
-		else
-		{
-			if (LoadTextureFromFile(m_width, m_height, m_nrChannels, path) != 0)
-			{
-
-				ZERO_CORE_LOG_WARN("Texture missin on: {0}", path);
-				LoadTextureFromFile(m_width, m_height, m_nrChannels, "Assets/Core/Textures/missing_texture.jpg");
-			}
-		}
-
-		glGenTextures(1, &m_id);
-		glBindTexture(GL_TEXTURE_2D, m_id);
-		SetPixelStoreAlignment(m_width);
+		glGenTextures(1, &m_ID);
+		glBindTexture(GL_TEXTURE_2D, m_ID);
+		SetPixelStoreAlignment(m_Width);
 		SetTextureParameters(GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR);
-		switch (m_nrChannels)
+		DescribeTexture(m_NrChannels);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	//Load an embedded texure with a name
+	GLTexture::GLTexture(const char* name, unsigned char* data, int size)
+	{
+		if (LoadTextureFromMemory(data, size, m_Width, m_Height, m_NrChannels) != 0)
+		{
+			ZERO_CORE_LOG_WARN("Embedded Texture not loaded");
+			LoadTextureFromFile(m_Width, m_Height, m_NrChannels, "Assets/Core/Textures/missing_texture.jpg");
+		}
+		glGenTextures(1, &m_ID);
+		glBindTexture(GL_TEXTURE_2D, m_ID);
+		SetPixelStoreAlignment(m_Width);
+		SetTextureParameters(GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR);
+		DescribeTexture(m_NrChannels);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+	}
+
+	void GLTexture::DescribeTexture(int m_NrChannels)
+	{
+		switch (m_NrChannels)
 		{
 		case 1:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_RED,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_Width, m_Height, 0, GL_RED,
 				GL_UNSIGNED_BYTE, m_data);
 			break;
 		case 2:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_width, m_height, 0, GL_R8,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, m_Width, m_Height, 0, GL_R8,
 				GL_UNSIGNED_BYTE, m_data);
+			break;
 		case 3:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_width, m_height, 0, GL_RGB,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Width, m_Height, 0, GL_RGB,
 				GL_UNSIGNED_BYTE, m_data);
 			break;
 		case 4:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA,
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA,
 				GL_UNSIGNED_BYTE, m_data);
 			break;
 		default:
 			break;
 		}
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+
 	GLTexture::~GLTexture()
 	{
 		stbi_image_free(m_data);
-		glDeleteTextures(1, &m_id);
+		glDeleteTextures(1, &m_ID);
 	}
 
 	void GLTexture::Bind(unsigned int slot) const
 	{
 		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, m_id);
+		glBindTexture(GL_TEXTURE_2D, m_ID);
 	}
 
 	void GLTexture::Unbind() const
@@ -78,11 +90,11 @@ namespace Zero
 	{
 		if (m_data)
 			stbi_image_free(m_data);
-		if (LoadTextureFromFile(m_width, m_height, m_nrChannels, texturePath) != 0)
+		if (LoadTextureFromFile(m_Width, m_Height, m_NrChannels, texturePath) != 0)
 			//TODO : Work in progress
 			;
-		glBindTexture(GL_TEXTURE_2D, m_id);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, m_data);
+		glBindTexture(GL_TEXTURE_2D, m_ID);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_Width, m_Height, GL_RGB, GL_UNSIGNED_BYTE, m_data);
 	}
 	int GLTexture::LoadTextureFromFile(int& width, int& height, int& nrChannels, const char* texturePath)
 	{

@@ -4,16 +4,20 @@
 #include <spdlog/spdlog.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#include <Core/Aliases.h>
+#include "LogSink.h"
 namespace Zero
 {
 	class Log {
 	public:
-		static void initialize();
-		inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static void Initialize();
+		inline static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+		inline static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		inline static std::shared_ptr<LogSink>& GetImGuiLogSink() { return s_LogSink; }
+		static std::shared_ptr<LogSink> s_LogSink;
 	private:
-		static std::shared_ptr<spdlog::logger> s_CoreLogger;
-		static std::shared_ptr<spdlog::logger> s_ClientLogger;
+		static Ref<spdlog::logger> s_CoreLogger;
+		static Ref<spdlog::logger> s_ClientLogger;
 	};
 }
 

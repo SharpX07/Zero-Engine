@@ -8,6 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
 #include <ResourceManagement/Model.h>
+#include <Core/Aliases.h>
 namespace Zero
 {
 	class ModelImporter {
@@ -16,7 +17,7 @@ namespace Zero
 		~ModelImporter()
 		{
 		}
-		std::shared_ptr<Model> loadModel(const char* _modelPath);
+		Ref<Model> loadModel(const char* _modelPath);
 	private:
 		void ExploreNode(aiNode* node, const aiScene* scene, std::shared_ptr<Model> model, glm::mat4 mTrasformation);
 		std::vector<MeshTexture> LoadMaterialTextures(aiMaterial* mat, const aiScene* scene, const std::shared_ptr<Model> model);

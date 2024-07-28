@@ -2,8 +2,9 @@
 #include <glad/glad.h> // holds all OpenGL type declarations
 #include <string>
 #include <vector>
-#include <ResourceManagement/Mesh.h>
-#include <ResourceManagement/Material.h>
+#include "Mesh.h"
+#include "Material.h"
+#include "Resource.h"
 
 namespace Zero
 {
@@ -12,7 +13,7 @@ namespace Zero
 		glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());;
 		glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());;
 	};
-	class Model {
+	class Model: public Resource {
 	public:
 		~Model()
 		{

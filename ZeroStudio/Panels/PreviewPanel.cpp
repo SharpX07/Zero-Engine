@@ -24,7 +24,7 @@ namespace Zero
 			ImVec2 pos = ImGui::GetCursorScreenPos();
 			const float window_width = ImGui::GetContentRegionAvail().x;
 			const float window_height = ImGui::GetContentRegionAvail().y;
-			//m_FBO.RescaleFramebuffer(window_width, window_height);
+			m_FBO.RescaleFramebuffer(window_width, window_height);
 			auto tempCamera = m_FocusedScene->GetPrincipalCamera()->GetComponent<CameraComponent>();
 
 			tempCamera.camera->SetViewportSize(window_width, window_height);

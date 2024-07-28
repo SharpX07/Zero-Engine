@@ -19,6 +19,10 @@ namespace Zero
 			: Camera(projection, view), m_Projection(projection), m_View(view)
 		{
 			m_LastMousePosition = Input::GetMousePosition();
+			m_OrbitRadius = glm::length(m_Position - m_OrbitCenter);
+			glm::vec3 normalizedPosition = (m_Position - m_OrbitCenter) / m_OrbitRadius;
+			m_Pitch = glm::asin(normalizedPosition.y);
+			m_Yaw = glm::atan(normalizedPosition.x, normalizedPosition.z);
 		}
 
 		void Update(float deltaTime);

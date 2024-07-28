@@ -24,8 +24,6 @@ namespace Zero
 					m_SelectedEntity = newEntity;
 				}
 			}
-
-			// Puedes agregar m�s opciones aqu�, por ejemplo:
 			if (ImGui::MenuItem("Create Camera"))
 			{
 				if (m_FocusedScene)
@@ -94,12 +92,13 @@ namespace Zero
 			bool node_open = ImGui::TreeNode(tempEntity.Tag.c_str());
 
 			if (ImGui::IsItemClicked()) {
-				EntitySelector::SetEntitySelected({entity,m_FocusedScene.get()});
+				EntitySelector::SetEntitySelected({ entity,m_FocusedScene.get() });
 			}
 			// Right click menu context
 			if (ImGui::BeginPopupContextItem()) {
 				if (ImGui::MenuItem("Delete Entity")) {
 					m_FocusedScene->DestroyEntity(m_FocusedScene->GetEntityByID(entity));
+					EntitySelector::SetEntitySelected({ entt::null,nullptr });
 					ImGui::EndPopup();
 					if (node_open) {
 						ImGui::TreePop();

@@ -48,8 +48,8 @@ namespace Zero
 		template<typename T>
 		T& GetComponent()
 		{
-			ZERO_ASSERT(HasComponent<T>(), "La entidad no tiene este componente")
-				return m_Scene->m_Registry.get<T>(m_EntityHandler);
+			ZERO_ASSERT(HasComponent<T>(), "La entidad no tiene este componente");
+			return m_Scene->m_Registry.get<T>(m_EntityHandler);
 		}
 
 		template<typename T>

@@ -12,7 +12,7 @@ namespace Zero
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
-        (void)io;
+        io.Fonts->AddFontFromFileTTF("Assets\\Core\\Fonts\\LiberationMono-Regular.ttf", 16.0f);
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         ImGui::StyleColorsDark();
         Application *app = Application::GetInstance();

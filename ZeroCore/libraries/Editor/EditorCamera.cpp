@@ -48,8 +48,6 @@ namespace Zero
 				}
 			}
 
-
-
 			if (m_Yaw > glm::pi<float>()) m_Yaw = -glm::pi<float>();
 			if (m_Yaw < -glm::pi<float>()) m_Yaw = glm::pi<float>();
 
@@ -65,7 +63,7 @@ namespace Zero
 		}
 		else
 		{
-			if (Input::MousePressed(Zero::MouseCode(Zero::MouseButton::LEFT)))
+			if (Input::MousePressed(Zero::MouseCode(Zero::MouseButton::RIGHT)))
 			{
 				m_Yaw += glm::radians(delta.x * m_MouseSensitivity);
 				m_Pitch -= glm::radians(delta.y * m_MouseSensitivity);
@@ -86,16 +84,17 @@ namespace Zero
 	void EditorCamera::HandleKeyboardInput(float deltaTime)
 	{
 		float moveAmount = m_MoveSpeed * deltaTime;
-
-		if (Input::KeyPressed(Key::KEY_W))
-			m_Position += m_Front * moveAmount;
-		if (Input::KeyPressed(Key::KEY_S))
-			m_Position -= m_Front * moveAmount;
-		if (Input::KeyPressed(Key::KEY_A))
-			m_Position -= m_Right * moveAmount;
-		if (Input::KeyPressed(Key::KEY_D))
-			m_Position += m_Right * moveAmount;
-
+		if (m_CameraState == CameraState::FREE_CAMERA)
+		{
+			if (Input::KeyPressed(Key::KEY_W))
+				m_Position += m_Front * moveAmount;
+			if (Input::KeyPressed(Key::KEY_S))
+				m_Position -= m_Front * moveAmount;
+			if (Input::KeyPressed(Key::KEY_A))
+				m_Position -= m_Right * moveAmount;
+			if (Input::KeyPressed(Key::KEY_D))
+				m_Position += m_Right * moveAmount;
+		}
 		if (Input::KeyDown(Key::SPACE))
 		{
 			ChangeCameraState(m_CameraState == CameraState::ORBIT_CAMERA ? CameraState::FREE_CAMERA : CameraState::ORBIT_CAMERA);

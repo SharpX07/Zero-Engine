@@ -3,6 +3,7 @@
 #include <imgui_stdlib.h>
 #include <imgui_internal.h>
 #include <ResourceManagement/ResourceManager.h>
+#include <Modules/EntitySelector.h>
 #include <nfd.h>
 
 namespace Zero
@@ -10,9 +11,9 @@ namespace Zero
 	void InspectorPanel::OnRender()
 	{
 		ImGui::Begin("Inspector");
-		if (m_SelectedEntity.IsValid())
+		if (EntitySelector::GetEntitySelected().IsValid())
 		{
-
+			m_SelectedEntity = EntitySelector::GetEntitySelected();
 			if (ImGui::Button("Add Component"))
 				ImGui::OpenPopup("AddComponentPopup");
 

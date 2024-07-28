@@ -18,8 +18,8 @@ void main()
 layout(location = 0) out vec4 o_Fragment;
 
 in vec3 FragPos;
-
+uniform vec3 u_FlatColor;
 void main()
 {    
-    o_Fragment = vec4(0.0,1.0,1.0,1.0);
+    o_Fragment = vec4(u_FlatColor/length(u_FlatColor),1.0);
 }

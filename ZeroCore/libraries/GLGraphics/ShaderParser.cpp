@@ -8,6 +8,7 @@ namespace Zero
 	{
 		if (!ProcessShaderFile(filePath)) return nullptr;
 		Ref<Shader> newShader = CreateRef<Shader>(m_VertexSourceCode.c_str(), m_FragmentSourceCode.c_str(), ShaderSourceType::Source);
+		newShader->SetName(filePath);
 		m_VertexSourceCode.clear();
 		m_FragmentSourceCode.clear();
 		return newShader;

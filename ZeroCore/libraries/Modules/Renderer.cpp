@@ -10,10 +10,11 @@
 #include <Modules/EntitySelector.h>
 #include <Core/Timer.h>
 #include <Core/Application.h>
+#include <ResourceManagement/Billboard.h>
 namespace Zero
 {
 	Ref<Model> Renderer::m_BoxModel;
-	
+
 	void Renderer::RenderOnRuntime(Scene& scene)
 	{
 		// TODO: This would be a principal camera
@@ -77,6 +78,24 @@ namespace Zero
 	void Renderer::RenderOnEditor(Ref<Scene> scene, Scope<EditorCamera>& editorCamera, Entity selected)
 	{
 		static Ref<Shader> EditorEntityShader = ResourceManager::GetInstance().CreateResource<Shader>("Assets/Shaders/EntityEditor.glsl");
+		static Billboard bil(ResourceManager::GetInstance().CreateResource<GLTexture>("Assets/Core/Textures/camera.png"));
+
+		for (auto enttValue : scene->GetAllEntitiesWith < TransformComponent, CameraComponent>())
+		{
+			Entity entity = { enttValue,scene.get() };
+
+			bil.GetShader()->Use();
+			bil.GetShader()->setMat4("projection", editorCamera->GetProjection());
+			bil.GetShader()->setMat4("view", editorCamera->GetView());
+			bil.GetShader()->setVec3("cameraPosition", editorCamera->GetPosition());
+			bil.GetShader()->setVec3("u_BillboardPos", entity.GetComponent<TransformComponent>().Translation);
+			bil.GetShader()->setVec2("u_BillboardSize", glm::vec2(1.0f));
+			bil.GetShader()->setUInt("u_EntityId", (uint32_t)entity);
+
+			bil.Bind();
+			glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(6), GL_UNSIGNED_INT, 0);
+			glActiveTexture(GL_TEXTURE0);
+		}
 		for (auto enttValue : scene->GetAllEntitiesWith<TransformComponent, MeshComponent>())
 		{
 			Entity entity = { enttValue,scene.get() };
@@ -89,16 +108,15 @@ namespace Zero
 				shaderInUse = entity.GetComponent<ShaderComponent>().Shader;
 
 
+
 			shaderInUse->Use();
-			shaderInUse->setMat4("model", entity.GetComponent<TransformComponent>().GetTransform());
 			shaderInUse->setMat4("projection", editorCamera->GetProjection());
 			shaderInUse->setMat4("view", editorCamera->GetView());
+			shaderInUse->setMat4("model", entity.GetComponent<TransformComponent>().GetTransform());
 			shaderInUse->setVec3("cameraPosition", editorCamera->GetPosition());
 			shaderInUse->setVec3("lightPosition", editorCamera->GetPosition());
 			shaderInUse->setUInt("u_EntityId", (uint32_t)entity);
 			shaderInUse->setVec2("u_Resolution", Application::GetInstance()->GetResolution());
-
-
 			RenderModel(model, shaderInUse);
 			if (entity == EntitySelector::GetEntitySelected())
 			{
@@ -114,19 +132,19 @@ namespace Zero
 		glm::mat4 transform = entity.GetComponent<TransformComponent>().GetTransform();
 		MeshComponent& model = entity.GetComponent<MeshComponent>();
 		auto boundingBox = model.ptr_Model->GetBoundingBox();
-		
-		glm::vec3 center = (boundingBox.min+ boundingBox.max) * 0.5f;
+
+		glm::vec3 center = (boundingBox.min + boundingBox.max) * 0.5f;
 		glm::vec3 scale = boundingBox.max - boundingBox.min;
 		glm::mat4 bbTransform = glm::mat4(1.0f);
 		bbTransform = glm::translate(bbTransform, center);
 		bbTransform = glm::scale(bbTransform, scale);
 
 		FlatShader->Use();
-		FlatShader->setMat4("model", transform*bbTransform);
+		FlatShader->setMat4("model", transform * bbTransform);
 		FlatShader->setMat4("projection", editorCamera->GetProjection());
 		FlatShader->setMat4("view", editorCamera->GetView());
 		FlatShader->setVec3("cameraPosition", editorCamera->GetPosition());
-
+		FlatShader->setVec3("u_FlatColor", glm::vec3(137, 87, 17));
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Modo de líneas
 		m_BoxModel->GetMeshes().at(0).m_VAO->Bind();
 		glLineWidth(2);
@@ -136,8 +154,8 @@ namespace Zero
 	}
 	void Renderer::InitializeRenderer()
 	{
-		//noTextureSample = GLTexture("Assets/Core/Textures/missing_texture.jpg");
-		//noTextureSample = std::make_unique<GLTexture>("Assets/Core/Textures/missing_texture.jpg");
+		Renderer::EnableCapability(GL_DEPTH_TEST);
+		Renderer::EnableCapability(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 		ZERO_CORE_LOG_INFO("Loading default texture");

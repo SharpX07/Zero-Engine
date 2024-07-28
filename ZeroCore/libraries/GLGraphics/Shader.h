@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
+#include <ResourceManagement/Resource.h>
 
 
 namespace Zero
@@ -17,7 +17,7 @@ namespace Zero
         Source
     };
 
-	class Shader {
+	class Shader : public Resource{
 	public:
 		Shader(const char* vertexSource, const char* fragmentSource, ShaderSourceType type = ShaderSourceType::Path);
         ~Shader();

@@ -10,8 +10,5 @@
 #include "ResourceManager.h"
 namespace Zero
 {
-	HashTable < std::string, Ref<Model >> ResourceManager::m_ModelResources;
-	HashTable<std::string, Ref<Shader>> ResourceManager::m_ShaderResources;
-
-
+	HashTable<std::string, Ref<Resource>> ResourceManager::m_Resources = {};
 }

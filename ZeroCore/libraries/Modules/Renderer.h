@@ -34,13 +34,12 @@ namespace Zero
 		inline static const void EnableCapability(GLenum capability) { glEnable(capability); }
 		static void RenderOnRuntime(Scene& scene);
 		static void RenderOnEditor(Ref<Scene> secene, Scope<EditorCamera>& editorCamera, Entity selected);
-		static void RenderOnDebug(Ref<Scene> secene, Scope<EditorCamera>& editorCamera);
 		static void Render(Shader& shader);
 		static void InitializeRenderer();
 	private:
 		static void RenderModel(MeshComponent model, Ref<Shader> shaderInUse);
-		static void RenderEntity(Entity& entidad, Scope<EditorCamera>& editorCamera, bool isOutline);
 		static void RenderBox(Entity& entity, Scope<EditorCamera>& editorCamera);
+		static void RenderBillboard();
 		static Ref<Model> m_BoxModel;
 	};
 

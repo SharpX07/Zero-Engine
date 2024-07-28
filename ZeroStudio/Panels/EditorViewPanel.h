@@ -19,6 +19,7 @@ namespace Zero
 	{
 	public:
 		EditorViewPanel();
+		void OnEvent(Event& e);
 		void OnRender();
 		void SetSceneFocus(Ref<Scene> scene);
 		void UpdateEditorCamera(float deltaTime) { m_EditorCamera->Update(deltaTime); }
@@ -38,5 +39,7 @@ namespace Zero
 		Scope<VBO> m_VBO;
 		Scope<EditorCamera> m_EditorCamera;
 		Entity m_SelectedEntity{ entt::null, m_FocusedScene.get() };
+		bool m_IsFocused;
+		bool m_PendingMousePickEvent;
 	};
 }

@@ -7,7 +7,7 @@ file(GLOB_RECURSE PANELS_SOURCES
     "Panels/*.cpp"
 )
 # Create the executable
-add_executable(${PROJECT_NAME} "src/ZeroStudio.cpp" "src/EditorLayer.h" "src/EditorLayer.cpp" ${PANELS_SOURCES})
+add_executable(${PROJECT_NAME} "src/ZeroStudio.cpp" "src/Editor.h" "src/Editor.cpp" ${PANELS_SOURCES})
 target_include_directories( ${PROJECT_NAME}
     PUBLIC 
     ${PROJECT_SOURCE_DIR}

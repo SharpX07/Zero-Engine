@@ -45,8 +45,8 @@ namespace Zero
 			glm::mat4 rotation = glm::mat4(glm::quat(Rotation));
 
 			return glm::translate(glm::mat4(1.0f), Translation)
-				* glm::scale(glm::mat4(1.0f), Scale)
-				* rotation;
+				* rotation
+				* glm::scale(glm::mat4(1.0f), Scale);
 		}
 		void Reset()
 		{

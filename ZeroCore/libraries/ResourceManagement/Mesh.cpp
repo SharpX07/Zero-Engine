@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include <ResourceManagement/Material.h>
+#include <Core/Aliases.h>
 namespace Zero
 {
 
@@ -14,12 +15,12 @@ namespace Zero
 
 	void Mesh::SetupMesh()
 	{
-		m_VAO = std::make_shared<Zero::VAO>();
+		m_VAO = CreateRef<Zero::VAO>();
 		Zero::VertexAttributeLayout layout;
 		m_VAO->Bind();
 
-		m_VBO = std::make_shared<Zero::VBO>(&Vertices[0], Vertices.size() * sizeof(mesh::MeshVertex));
-		m_EBO = std::make_shared<Zero::EBO>(&VertexIndices[0], VertexIndices.size() * sizeof(unsigned int));
+		m_VBO = CreateRef<Zero::VBO>(&Vertices[0], Vertices.size() * sizeof(mesh::MeshVertex));
+		m_EBO = CreateRef<Zero::EBO>(&VertexIndices[0], VertexIndices.size() * sizeof(unsigned int));
 		layout.addAttribute(GL_FLOAT, 3);
 		layout.addAttribute(GL_FLOAT, 3);
 		layout.addAttribute(GL_FLOAT, 2);

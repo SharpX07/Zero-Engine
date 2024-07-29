@@ -1,8 +1,4 @@
-﻿//#include <imgui.h>
-//#include <imgui_impl_glfw.h>
-//#include <imgui_impl_opengl3.h>
-
-#define GLM_ENABLE_EXPERIMENTAL
+﻿#define GLM_ENABLE_EXPERIMENTAL
 #include "app.h"
 #include <GLGraphics/Shader.h>
 #include <glm/ext/matrix_transform.hpp>

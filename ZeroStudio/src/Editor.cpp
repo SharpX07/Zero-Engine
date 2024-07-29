@@ -34,11 +34,6 @@ namespace Zero
 		m_LogPanel = CreateScope<LogPanel>();
 	}
 
-	GLFWwindow* ZeroStudio::GetGlfwWindow()
-	{
-		return m_Window.glfwWindowHandle;
-	}
-
 	void ZeroStudio::OnEvent(Event& e)
 	{
 		EventDispatcher Dispatcher(e);

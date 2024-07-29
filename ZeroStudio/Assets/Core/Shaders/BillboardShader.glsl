@@ -32,12 +32,14 @@ layout(location = 1) out uint o_EntityID;      // ID de la entidad para picking
 in vec2 TexCoord;
 in vec3 FragPos;
 uniform uint u_EntityId;
-
 uniform sampler2D ourTexture;
 
 void main()
 {
 	vec4 texColor = texture(ourTexture, TexCoord).rgba;
     o_Fragment = texColor;
+	if (texColor.a  < 0.1) {
+        discard;
+    }
     o_EntityID = u_EntityId + 1u;
 }

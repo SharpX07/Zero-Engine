@@ -34,7 +34,7 @@ namespace Zero
 		void ManipulateObject(TransformComponent& transform);
 		Ref<Scene> m_FocusedScene;
 		Framebuffer m_FBO;
-		Scope<Shader> m_TestShader;
+		Ref<Shader> m_TestShader;
 		Scope<VAO> m_VAO;
 		Scope<VBO> m_VBO;
 		Scope<EditorCamera> m_EditorCamera;

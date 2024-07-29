@@ -7,6 +7,7 @@
 #include <ImGuizmo.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <Events/MouseEvents.h>
+#include <ResourceManagement/ResourceManager.h>
 
 namespace Zero
 {
@@ -64,7 +65,7 @@ namespace Zero
 
 	void EditorViewPanel::InitializeShader()
 	{
-		m_TestShader = CreateScope<Shader>("Assets/Shaders/Grid.vert", "Assets/Shaders/Grid.frag");
+		m_TestShader = ResourceManager::GetInstance().CreateResource<Shader>("Assets/Shaders/Grid.glsl");
 	}
 
 	void EditorViewPanel::InitializeGeometry()

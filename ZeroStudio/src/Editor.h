@@ -16,7 +16,7 @@ namespace Zero
 	public:
 
 		ZeroStudio();
-		GLFWwindow* GetGlfwWindow() override;
+		GLFWwindow* GetGlfwWindow() override { return m_Window.glfwWindowHandle; };
 		void Run()  override;
 		void Stop()  override;
 		void OnEvent(Event& e);

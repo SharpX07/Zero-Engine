@@ -58,7 +58,6 @@ namespace Zero
 							ZERO_APP_LOG_ERROR(NFD_GetError());
 					}
 				}
-
 				if (ImGui::MenuItem("Shader Component"))
 				{
 					nfdu8char_t *outPath;

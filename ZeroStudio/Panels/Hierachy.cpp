@@ -89,7 +89,12 @@ namespace Zero
 		for (auto entity : view) {
 
 			auto tempEntity = m_FocusedScene->GetEntityByID(entity).GetComponent<TagComponent>();
-			bool node_open = ImGui::TreeNode(tempEntity.Tag.c_str());
+			bool node_open;
+			if (tempEntity.Tag.empty())
+				node_open = ImGui::TreeNode("-");
+			else
+				node_open = ImGui::TreeNode(tempEntity.Tag.c_str());
+
 
 			if (ImGui::IsItemClicked()) {
 				EntitySelector::SetEntitySelected({ entity,m_FocusedScene.get() });

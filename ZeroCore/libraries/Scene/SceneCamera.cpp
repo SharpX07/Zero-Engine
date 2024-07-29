@@ -17,7 +17,6 @@ namespace Zero
 
 	void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 	{
-
 		//ZERO_ASSERT(ERROR, width > 0 && height > 0, "Viewport incorrecto para la camara");
 		if (!(width > 0 && height > 0))
 			return;
@@ -30,15 +29,16 @@ namespace Zero
 		// Extraer la posición de la cámara de la matriz de transformación
 		glm::vec3 eye = glm::vec3(transform[3]);
 
-		// Definir el punto al que la cámara está mirando (por ejemplo, hacia adelante desde la posición de la cámara)
-		glm::vec3 forward = glm::normalize(glm::vec3(transform[2]));  // La dirección hacia adelante es la tercera columna
-		glm::vec3 center = eye - forward; // La cámara mira en la dirección opuesta al "forward"
+		// Extraer los vectores de dirección de la matriz de transformación
+		glm::vec3 right = glm::normalize(glm::vec3(transform[0])); // Primera columna
+		glm::vec3 up = glm::normalize(glm::vec3(transform[1]));    // Segunda columna
+		glm::vec3 forward = glm::normalize(glm::vec3(transform[2])); // Tercera columna
 
-		// Definir el vector "arriba" del mundo (esto depende de tu configuración, generalmente es el eje Y)
-		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 		// Calcular la matriz de vista usando glm::lookAt
-		m_View = glm::lookAt(eye, glm::vec3(0,0,0), up);
+		glm::vec3 center = eye + forward;
+		m_View = glm::lookAt(eye, center, up);
 	}
+
 
 	glm::mat4 SceneCamera::perspective(float fovy, float aspect, float zNear, float zFar)
 	{

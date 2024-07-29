@@ -54,11 +54,10 @@ namespace Zero
 				newMaterial.addTexture(texture);
 			auto& properties = newMaterial.GetProperties();
 
-			// Albedo (Color difuso)
-			aiColor3D albedo;
-			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, albedo) == AI_SUCCESS) {
+			aiColor3D diffuse;
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse) == AI_SUCCESS) {
 
-				properties.Albedo = glm::vec3(albedo.r, albedo.g, albedo.b);
+				properties.Diffuse = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
 			}
 
 			// Metallic

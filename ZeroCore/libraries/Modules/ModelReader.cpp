@@ -65,26 +65,19 @@ namespace Zero
 			if (material->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == AI_SUCCESS) {
 				properties.Metallic = metallic;
 			}
-			else {
-				// Si no se encuentra el factor metálico, intentamos con el color especular
-				aiColor3D specular;
-				if (material->Get(AI_MATKEY_COLOR_SPECULAR, specular) == AI_SUCCESS) {
-					properties.Metallic = (specular.r + specular.g + specular.b) / 3.0f;
-				}
+			aiColor3D specular;
+			if (material->Get(AI_MATKEY_COLOR_SPECULAR, specular) == AI_SUCCESS) {
+				properties.Specular = glm::vec3(specular.r + specular.g + specular.b);
 			}
-
 			// Roughness
 			float roughness;
 			if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
 				properties.Roughness = roughness;
 			}
-			else {
-				// Si no se encuentra el factor de rugosidad, intentamos con el brillo
-				float shininess;
-				if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-					// Convertir brillo a rugosidad (esta es una aproximación simple)
-					properties.Roughness = 1.0f - std::sqrt(shininess / 100.0f);
-				}
+			float shininess;
+			if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
+				// Convertir brillo a rugosidad (esta es una aproximación simple)
+				properties.Shininess = shininess;
 			}
 			// Emissive
 			aiColor3D emissive;

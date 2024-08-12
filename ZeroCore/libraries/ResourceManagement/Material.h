@@ -27,8 +27,6 @@ namespace Zero
 		glm::vec3 Specular = glm::vec3(0.0f);
 		glm::vec3 Ambient = glm::vec3(0.0f);
 		float Shininess = 0.0;
-
-
 		float Metallic = 0.0f;
 		float Roughness = 0.5f;
 		glm::vec3 Emissive = glm::vec3(0.0f);

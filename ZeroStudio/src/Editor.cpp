@@ -62,6 +62,9 @@ namespace Zero
 			// Update Systems
 			CameraSystem::UpdateCameras(*newScene);
 			m_EditorViewPanel->UpdateEditorCamera(deltaTime);
+
+			
+
 			// Render Panels
 			m_ImguiLayer.Begin();
 			m_HierarchyPanel->OnRender();

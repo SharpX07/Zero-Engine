@@ -16,7 +16,6 @@ void main()
 	gl_Position = projection * view * model* vec4(aPos, 1.0f);
 	TexCoord = aTexCoord;
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
-
     // Transformación de la normal del vértice
     Normal = normalize(normalMatrix * aNormal);
 }
@@ -25,14 +24,16 @@ void main()
 
 #version 330 core
 layout(location = 0) out vec4 o_Fragment;     // Color normal
-
 layout(location = 1) out uint o_EntityID;      // ID de la entidad para picking
 
 in vec2 TexCoord;
 in vec3 Normal;
 in vec3 FragPos;
 
-uniform sampler2D ourTexture;
+uniform sampler2D DiffuseMap;
+uniform sampler2D NormalMap;
+uniform sampler2D SpecularMap;
+
 
 // Nuevas propiedades del material
 uniform vec3 albedo;
@@ -48,15 +49,25 @@ uniform uint u_EntityId;
 
 // Uniform para indicar si el objeto está marcado
 
+struct Material
+{
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
+uniform Material material;
+
 void main()
 {
     vec3 baseColor;
     float transparency = 0.0;
     if (hasAlbedoTexture) {
         // Combinar albedo con la textura
-        vec4 texColor = texture(ourTexture, TexCoord).rgba;
+        vec4 texColor = texture(DiffuseMap,TexCoord).rgba;
         transparency = texColor.a;
-        baseColor = albedo * texColor.rgb;
+        baseColor = texColor.rgb;
     } else {
         baseColor = albedo; // Usar solo el color de albedo
         transparency = 1.0;

@@ -55,10 +55,11 @@ namespace Zero
 		for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 			auto material = mesh.Material;
 			auto properties = material.GetProperties();
-			shaderInUse->setVec3("albedo", properties.Diffuse);
-			shaderInUse->setFloat("metallic", properties.Metallic);
-			shaderInUse->setFloat("roughness", properties.Roughness);
-			shaderInUse->setBool("hasAlbedoTexture", properties.hasAlbedoTexture);
+			shaderInUse->setVec3("material.ambient", properties.Ambient);
+			shaderInUse->setVec3("material.diffuse", properties.Diffuse);
+			shaderInUse->setVec3("material.specular", properties.Specular);
+			shaderInUse->setFloat("material.shininess", properties.Shininess);
+			shaderInUse->setBool("hasAlbedoTexture", true);
 
 			for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
 			{

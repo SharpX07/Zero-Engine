@@ -31,7 +31,9 @@ namespace Zero
 			else if constexpr (std::is_same_v<T, Shader>)
 				return CreateAndStoreResource<Shader>(path, [this](const std::string& p) { return this->CreateShader(p); });
 			else if constexpr (std::is_same_v<T, GLTexture>)
-				return CreateAndStoreResource<GLTexture>(path, [this](const std::string& p, Args&&... args) { return this->CreateTexture(p, std::forward<Args>(args)...); },std::forward<Args>(args)...);
+				return CreateAndStoreResource<GLTexture>(path, [this](const std::string& p, Args&&... args) { return this->CreateTexture(p, std::forward<Args>(args)...); }, std::forward<Args>(args)...);
+			else if constexpr (std::is_same_v<T, Material>)
+				return CreateAndStoreResource<GLTexture>(path, [this](const std::string& p, Args&&... args) { return this->CreateTexture(p, std::forward<Args>(args)...); }, std::forward<Args>(args)...);
 			else
 			{
 				ZERO_ASSERT(false, "Unsupported resource type");

@@ -196,7 +196,11 @@ namespace Zero
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					m_EditorCamera->SetOrbitCenter(EntitySelector::GetEntitySelected().GetComponent<TransformComponent>().Translation);
-					m_EditorCamera->SetOrbitRadius(10);
+					if(EntitySelector::GetEntitySelected().HasComponent<MeshComponent>())
+					{
+						BoundingBox bb = EntitySelector::GetEntitySelected().GetComponent<MeshComponent>().ptr_Model->GetBoundingBox();
+						m_EditorCamera->SetOrbitRadius(glm::length(bb.max)*2);
+					}
 				}
 			}
 			m_FBO.UnBind();

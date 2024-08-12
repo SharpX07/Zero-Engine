@@ -11,6 +11,12 @@ namespace Zero
 	void InspectorPanel::OnRender()
 	{
 		ImGui::Begin("Inspector");
+		// Obtener una referencia al estilo global
+		ImGuiStyle& style = ImGui::GetStyle();
+
+		// Cambiar el color de fondo de las ventanas
+		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.11f, 0.149f, 1.0f); // Gris oscuro
+
 		if (EntitySelector::GetEntitySelected().IsValid())
 		{
 			m_SelectedEntity = EntitySelector::GetEntitySelected();
@@ -44,8 +50,8 @@ namespace Zero
 				{
 					if (!m_SelectedEntity.HasComponent<MeshComponent>())
 					{
-						nfdu8char_t *outPath;
-						nfdopendialogu8args_t args = {0};
+						nfdu8char_t* outPath;
+						nfdopendialogu8args_t args = { 0 };
 						nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
 						if (result == NFD_OKAY)
 						{
@@ -60,8 +66,8 @@ namespace Zero
 				}
 				if (ImGui::MenuItem("Shader Component"))
 				{
-					nfdu8char_t *outPath;
-					nfdopendialogu8args_t args = {0};
+					nfdu8char_t* outPath;
+					nfdopendialogu8args_t args = { 0 };
 					nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
 					if (result == NFD_OKAY)
 					{
@@ -87,62 +93,56 @@ namespace Zero
 			m_SelectedEntity = entity;
 	}
 
-	static void Draw3VecInput(const char *label, float *values, float resetValue = 0.0f, float columnWidth = 100.0f)
+	static void Draw3VecInput(const char* label, float* values, float resetValue = 0.0f, float columnWidth = 100.0f)
 	{
 		ImGui::PushID(label);
-
-		ImGui::Columns(2);
+		ImGui::GetStyle().Colors[ImGuiCol_Separator] = ImVec4(0, 0, 0, 0);
+		ImGui::Columns(2, "locations", false);
 		ImGui::SetColumnWidth(0, columnWidth);
 		ImGui::Text(label);
 		ImGui::NextColumn();
 
-		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{0, 0});
+		float elementWidth = (ImGui::GetContentRegionAvail().x) / 3.0f;
 
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-		ImVec2 buttonSize = {lineHeight + 3.0f, lineHeight};
+		auto CustomDragFloat = [](const char* label, float& value, ImU32 lineColor, float width, float lineThickness = 1.0f) {
+			ImGui::BeginGroup();
+			float labelWidth = ImGui::CalcTextSize(label).x;
+			float dragFloatWidth = width * 0.7f - labelWidth - ImGui::GetStyle().ItemSpacing.x;
 
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-		// if (ImGui::Button("X", buttonSize))
-		// values[0] = resetValue;
-		ImGui::ColorButton("v", ImVec4{255, 0, 0, 0});
+			ImGui::Text(label);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(dragFloatWidth);
+			ImGui::DragFloat(("##" + std::string(label)).c_str(), &value, 0.1f, 0.0f, 0.0f, "%.2f");
 
-		ImGui::PopStyleColor(3);
+			ImVec2 p = ImGui::GetItemRectMin();
+			ImVec2 pMax = ImGui::GetItemRectMax();
+			ImGui::GetWindowDrawList()->AddLine(
+				ImVec2(p.x, pMax.y),
+				ImVec2(pMax.x, pMax.y),
+				lineColor, lineThickness
+			);
+			ImGui::EndGroup();
+			};
 
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
+
+		CustomDragFloat("X", values[0], ImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 1.0f)), elementWidth);
 		ImGui::SameLine();
-		ImGui::DragFloat("##X", &values[0], 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
+		CustomDragFloat("Y", values[1], ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 0.0f, 1.0f)), elementWidth);
 		ImGui::SameLine();
+		CustomDragFloat("Z", values[2], ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 1.0f, 1.0f)), elementWidth);
 
-		/*ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-		if (ImGui::Button("Y", buttonSize))
-			values[1] = resetValue;
-		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar();
 
+		// Reset button
 		ImGui::SameLine();
-		ImGui::DragFloat("##Y", &values[1], 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-		if (ImGui::Button("Z", buttonSize))
-			values[2] = resetValue;
-		ImGui::PopStyleColor(3);
-
-		ImGui::SameLine();
-		ImGui::DragFloat("##Z", &values[2], 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::PopItemWidth();
-
-		ImGui::PopStyleVar();*/
+		if (ImGui::Button("Reset")) {
+			for (int i = 0; i < 3; i++) {
+				values[i] = resetValue;
+			}
+		}
 
 		ImGui::Columns(1);
-
 		ImGui::PopID();
 	}
 
@@ -151,55 +151,53 @@ namespace Zero
 		// Crear estilo personalizado
 
 		DrawComponent<IDComponent>("ID Component",
-								   [](auto &component)
-								   {
-									   ImGui::Text(std::to_string(component.Id).c_str());
-								   });
+			[](auto& component)
+			{
+ 				ImGui::InputText("ID", &std::to_string(component.Id), ImGuiInputTextFlags_ReadOnly);
+			});
 		DrawComponent<TagComponent>("Tag Component",
-									[](auto &component)
-									{
-										ImGui::InputText("Name", &component.Tag);
-									});
+			[](auto& component)
+			{
+				ImGui::InputText("Name", &component.Tag);
+			});
 		DrawComponent<CameraComponent>("Camera Component",
-									   [](auto &component)
-									   {
-										   // Selector de color RGB
-										   ImGui::ColorEdit4("Color RGB", &component.Color[0]);
-										   ImGui::InputFloat("Fov", &component.Fov);
-										   ImGui::Checkbox("Principal Camera", &component.IsPrincipalCamera);
-									   });
+			[](auto& component)
+			{
+				// Selector de color RGB
+				ImGui::ColorEdit4("Color RGB", &component.Color[0]);
+				ImGui::InputFloat("Fov", &component.Fov);
+				ImGui::Checkbox("Principal Camera", &component.IsPrincipalCamera);
+			});
 		DrawComponent<TransformComponent>("Transform Component",
-										  [](auto &component)
-										  {
-											  ImGui::InputFloat3("Position", &component.Translation[0]);
-											  ImGui::Text("Rotation:");
-											  ImGui::InputFloat3("Rotation", &component.Rotation[0]);
-											  ImGui::Text("Scale:");
-											  ImGui::InputFloat3("Scale", &component.Scale[0]);
-										  });
+			[](auto& component)
+			{
+				Draw3VecInput("Position", &component.Translation[0], 0.0f);
+				Draw3VecInput("Rotation", &component.Rotation[0], 0.0f);
+				Draw3VecInput("Scale", &component.Scale[0], 1.0f);
+			});
 		DrawComponent<MeshComponent>("Mesh Component",
-									 [](auto &component)
-									 {
-										 if (component.ptr_Model)
-										 {
-											 auto &path = component.ptr_Model->GetPath();
-											 ImGui::Text("Path: %s", path.c_str());
-											 ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
-										 }
-										 else
-										 {
-											 ImGui::Text("Path: %s", "");
-											 ImGui::Text("Referencias: %i", -1);
-										 }
-									 });
+			[](auto& component)
+			{
+				if (component.ptr_Model)
+				{
+					auto& path = component.ptr_Model->GetPath();
+					ImGui::Text("Path: %s", path.c_str());
+					ImGui::Text("Referencias: %i", component.ptr_Model.use_count());
+				}
+				else
+				{
+					ImGui::Text("Path: %s", "");
+					ImGui::Text("Referencias: %i", -1);
+				}
+			});
 		DrawComponent<ShaderComponent>("Shader Component",
-									   [](auto &component)
-									   {
-										   if (component.Shader)
-										   {
-											   ImGui::Text("ProgramValue: %i", component.Shader->m_ShaderProgram);
-										   }
-									   });
+			[](auto& component)
+			{
+				if (component.Shader)
+				{
+					ImGui::Text("ProgramValue: %i", component.Shader->m_ShaderProgram);
+				}
+			});
 	}
 
 }

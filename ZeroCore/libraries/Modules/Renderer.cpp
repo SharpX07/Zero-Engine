@@ -35,9 +35,9 @@ namespace Zero
 			shader.Shader->setMat4("view", camera.camera->GetView());
 
 			for (const auto& mesh : model.ptr_Model->GetMeshes()) {
-				for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
+				for (unsigned int i = 0; i < mesh.Material->GetNumTextures(); i++)
 				{
-					const auto& texture = mesh.Material.getTextures().at(i);
+					const auto& texture = mesh.Material->getTextures().at(i);
 					if (texture.Type == DIFFUSE)
 						texture.GlTexture->Bind(0);
 					if (texture.Type == NORMAL)
@@ -54,16 +54,16 @@ namespace Zero
 	{
 		for (const auto& mesh : model.ptr_Model->GetMeshes()) {
 			auto material = mesh.Material;
-			auto properties = material.GetProperties();
-			shaderInUse->setVec3("material.ambient", properties.Ambient);
-			shaderInUse->setVec3("material.diffuse", properties.Diffuse);
-			shaderInUse->setVec3("material.specular", properties.Specular);
-			shaderInUse->setFloat("material.shininess", properties.Shininess);
+			auto properties = material->GetProperties();
+			shaderInUse->setVec3("material.ambient", glm::vec3(0.1f));
+			//shaderInUse->setVec3("material.diffuse", properties.Diffuse);
+			//shaderInUse->setVec3("material.specular", properties.Specular);
+			//shaderInUse->setFloat("material.shininess", properties.Shininess);
 			shaderInUse->setBool("hasAlbedoTexture", true);
 
-			for (unsigned int i = 0; i < mesh.Material.GetNumTextures(); i++)
+			for (unsigned int i = 0; i < mesh.Material->GetNumTextures(); i++)
 			{
-				const auto& texture = mesh.Material.getTextures().at(i);
+				const auto& texture = mesh.Material->getTextures().at(i);
 				if (texture.Type == DIFFUSE)
 					texture.GlTexture->Bind(0);
 				//if (texture.Type == NORMAL)

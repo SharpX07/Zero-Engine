@@ -27,10 +27,5 @@ namespace Zero
     // Panels
 	private:
 		ImguiLayer m_ImguiLayer;
-		Scope<PreviewPanel> m_PreviewPanel;
-		Scope<InspectorPanel> m_InspectorPanel;
-		Scope<EditorViewPanel> m_EditorViewPanel;
-		Scope<HierarchyPanel> m_HierarchyPanel;
-		Scope<LogPanel> m_LogPanel;
 	};
 }

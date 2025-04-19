@@ -7,13 +7,15 @@
 #include <string>
 #include <GLGraphics/FBO.h>
 #include <Core/Aliases.h>
+#include <Editor/Panel.h>
+
 namespace Zero
 {
-	class PreviewPanel
+	class PreviewPanel : public Panel
 	{
 	public:
 		PreviewPanel();
-		void OnRender();
+		void OnRender() override;
 		void SetSceneFocus(Ref<Scene> scene);
 	private:
 		Ref<Scene> m_FocusedScene;

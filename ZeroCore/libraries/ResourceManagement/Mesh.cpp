@@ -5,7 +5,7 @@
 namespace Zero
 {
 
-	Mesh::Mesh(std::vector<mesh::MeshVertex> vertices, std::vector<unsigned int> indices, const Zero::Material& material)
+	Mesh::Mesh(std::vector<mesh::MeshVertex> vertices, std::vector<unsigned int> indices, Ref<Zero::Material> material)
 	{
 		this->Material = material;
 		this->VertexIndices = indices;

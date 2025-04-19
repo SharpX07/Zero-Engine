@@ -33,28 +33,27 @@ namespace Zero
 			else if constexpr (std::is_same_v<T, GLTexture>)
 				return CreateAndStoreResource<GLTexture>(path, [this](const std::string& p, Args&&... args) { return this->CreateTexture(p, std::forward<Args>(args)...); }, std::forward<Args>(args)...);
 			else if constexpr (std::is_same_v<T, Material>)
-				return CreateAndStoreResource<GLTexture>(path, [this](const std::string& p, Args&&... args) { return this->CreateTexture(p, std::forward<Args>(args)...); }, std::forward<Args>(args)...);
+				return CreateAndStoreResource<Material>(path, [this](const std::string& p) { return CreateRef<Material>(); });
 			else
 			{
 				ZERO_ASSERT(false, "Unsupported resource type");
 			}
-
-			
 		}
 
+		//TODO
 		template<typename T>
 		Ref<T> GetResource(const std::string& name)
 		{
-			Ref<T> existingResource;
-			if constexpr (std::is_same_v<T, Model>)
-				existingResource = FindResource<T>(filename, resourceMap);
-			else
-				ZERO_ASSERT(false, "Unsupported resource type");
+			//Ref<T> existingResource;
+			//if constexpr (std::is_same_v<T, Model>)
+				//existingResource = FindResource<T>(filename, resourceMap);
+			//else
+				//ZERO_ASSERT(false, "Unsupported resource type");
 
-			if (existingResource)
-				return existingResource;
-			else
-				ZERO_CORE_LOG_WARN("Resource not found: {}", name);
+			//if (existingResource)
+				//return existingResource;
+			//else
+				//ZERO_CORE_LOG_WARN("Resource not found: {}", name);
 			return nullptr;
 		}
 
@@ -63,20 +62,7 @@ namespace Zero
 			m_Resources.clear();
 		}
 
-		void DebugShowResources()
-		{
-			m_DebugResources.clear();
-			for (const auto& [key, value] : m_Resources) {
-				std::string typeStr = "Unknown";
-				if (dynamic_cast<Model*>(value.get())) typeStr = "Model";
-				else if (dynamic_cast<Shader*>(value.get())) typeStr = "Shader";
-				else if (dynamic_cast<GLTexture*>(value.get())) typeStr = "GLTexture";
-
-				m_DebugResources.push_back({ key, typeStr });
-			}
-		}
-
-		const std::vector<std::tuple<std::string, std::string>>& GetDebugResources() const { return m_DebugResources; }
+		const HashTable<std::string, Ref<Resource>>& GetAllResources() const { return m_Resources; }
 
 	private:
 
@@ -90,8 +76,11 @@ namespace Zero
 				return existingResource;
 
 			Ref<T> resource = creator(path, std::forward<Args>(args)...);
+			Ref<Resource> SaveResource = std::static_pointer_cast<Resource>(resource);
+			SaveResource->SetName(filename);
+
 			if (resource) {
-				m_Resources.insert({ filename, std::static_pointer_cast<Resource>(resource) });
+				m_Resources.insert({ filename, SaveResource });
 			}
 			return resource;
 		}
@@ -122,7 +111,6 @@ namespace Zero
 
 		
 	private:
-		std::vector<std::tuple<std::string, std::string>> m_DebugResources;
 		static HashTable<std::string, Ref<Resource>> m_Resources;
 		ModelImporter m_ModelImporter;
 		ShaderParser m_ShaderParser;

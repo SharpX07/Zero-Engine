@@ -11,6 +11,7 @@
 #include <GLGraphics/Shader.h>
 #include <GLGraphics/Texture.h>
 #include <ResourceManagement/Material.h>
+#include <Core/Aliases.h>
 namespace Zero
 {
 
@@ -29,7 +30,7 @@ namespace Zero
 		Mesh(
 			std::vector<mesh::MeshVertex> vertices,
 			std::vector<unsigned int> indices,
-			const Material& material
+			Ref<Material> material
 		);
 		~Mesh()
 		{
@@ -45,8 +46,8 @@ namespace Zero
 	public:
 		std::vector<mesh::MeshVertex>	Vertices;
 		std::vector<unsigned int>		VertexIndices;
-		Material Material;
-		std::shared_ptr<Zero::VAO> m_VAO;
+		Ref<Material> Material;
+		Ref<Zero::VAO> m_VAO;
 	};
 
 }

@@ -48,5 +48,11 @@ namespace Zero
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
-
+    void ImguiLayer::Render()
+    {
+        for(auto& panel : m_Panels)
+        {
+            panel.second->OnRender();
+        }
+    }
 }

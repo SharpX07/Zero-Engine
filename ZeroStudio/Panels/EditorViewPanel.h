@@ -10,17 +10,17 @@
 
 #include <Core/Aliases.h>
 #include <GLGraphics/Shader.h>
-
+#include <Editor/Panel.h>
 
 
 namespace Zero
 {
-	class EditorViewPanel
+	class EditorViewPanel : public Panel
 	{
 	public:
 		EditorViewPanel();
 		void OnEvent(Event& e);
-		void OnRender();
+		void OnRender() override;
 		void SetSceneFocus(Ref<Scene> scene);
 		void UpdateEditorCamera(float deltaTime) { m_EditorCamera->Update(deltaTime); }
 		Entity GetSelectedEntity() { return m_SelectedEntity; }

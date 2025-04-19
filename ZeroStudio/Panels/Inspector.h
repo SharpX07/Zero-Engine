@@ -4,13 +4,14 @@
 #include <imgui_impl_opengl3.h>
 #include <Scene/Entity.h>
 #include <string>
+#include <Editor/Panel.h>
 
 namespace Zero
 {
-	class InspectorPanel
+	class InspectorPanel : public Panel
 	{
 	public:
-		void OnRender();
+		void OnRender() override;
 		void SetEntityFocus(Entity& entity);
 	private:
 		template<typename T, typename ImguiBlock>

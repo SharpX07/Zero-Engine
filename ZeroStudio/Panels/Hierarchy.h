@@ -7,14 +7,15 @@
 #include <string>
 #include <Core/Aliases.h>
 #include <Scene/Entity.h>
+#include <Editor/Panel.h>
 
 
 namespace Zero
 {
-	class HierarchyPanel
+	class HierarchyPanel : public Panel
 	{
 	public:
-		void OnRender();
+		void OnRender() override;
 		void SetSceneFocus(Ref<Scene>  scene);
 		Entity GetEntityFocus() { return m_SelectedEntity; };
 	private:

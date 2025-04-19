@@ -39,55 +39,32 @@ namespace Zero
 		for (int i = 0; i < scene->mNumMaterials; i++)
 		{
 			aiMaterial* material = scene->mMaterials[i];
-			Material newMaterial;
+
+			Ref<Material> newMaterial = ResourceManager::GetInstance().CreateResource<Material>(model->GetPath() + ".Material_" + std::to_string(i));
 			std::vector<MeshTexture> textures;
 			textures = LoadMaterialTextures(material, scene, model);
-			for (auto tex : textures)
-			{
-				if (tex.Type == MeshTextureTypes::DIFFUSE)
-				{
-					auto& properties = newMaterial.GetProperties();
-					properties.hasAlbedoTexture = true;
-				}
-			}
+
 			for (const auto& texture : textures)
-				newMaterial.addTexture(texture);
-			auto& properties = newMaterial.GetProperties();
+				newMaterial->addTexture(texture);
+			
+			auto& properties = newMaterial->GetProperties();
 
+			// Diffuse;
 			aiColor3D diffuse;
-			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse) == AI_SUCCESS) {
-
-				properties.Diffuse = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
-			}
+			if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse) == AI_SUCCESS) 
+				properties.BaseColor = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
 
 			// Metallic
 			float metallic;
 			if (material->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == AI_SUCCESS) {
-				properties.Metallic = metallic;
-			}
-			aiColor3D specular;
-			if (material->Get(AI_MATKEY_COLOR_SPECULAR, specular) == AI_SUCCESS) {
-				properties.Specular = glm::vec3(specular.r + specular.g + specular.b);
+				properties.MetallicFactor = metallic;
 			}
 			// Roughness
 			float roughness;
 			if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
-				properties.Roughness = roughness;
+				properties.RoughnessFactor = roughness;
 			}
-			float shininess;
-			if (material->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-				// Convertir brillo a rugosidad (esta es una aproximación simple)
-				properties.Shininess = shininess;
-			}
-			// Emissive
-			aiColor3D emissive;
-			if (material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS)
-				properties.Emissive = glm::vec3(emissive.r, emissive.g, emissive.b);
 
-			// Opacity
-			float opacity;
-			if (material->Get(AI_MATKEY_OPACITY, opacity) == AI_SUCCESS)
-				properties.Opacity = opacity;
 			model->addMaterial(newMaterial);
 		}
 	}
@@ -157,21 +134,20 @@ namespace Zero
 			{
 				MeshTexture texture;
 				aiString texturePath;
-				std::string convertedPath(model->GetPath());
-				texture.Path = convertedPath.substr(0, convertedPath.find_last_of("/\\")) + "/" + std::string(texturePath.C_Str());
 				texture.Type = meshTextureType;
-				bool hasTexture = mat->GetTexture(textureType, i, &texturePath);
-				auto embeddedTexture = scene->GetEmbeddedTexture(texturePath.C_Str());
-				if (embeddedTexture)
-				{
-					std::string embeddedTextureIndex(texturePath.C_Str());
-					if (!embeddedTextureIndex.empty() && embeddedTextureIndex[0] == '*')
-						embeddedTextureIndex = embeddedTextureIndex.substr(1);
-					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(model->GetPath() + embeddedTextureIndex, reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth);
-				}
-				else if (hasTexture)
-					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(texture.Path.c_str());
 				texture.Identifier = UUID();
+				bool hasTexture = mat->GetTexture(textureType, i, &texturePath);
+				auto embeddedTex = scene->GetEmbeddedTexture(texturePath.C_Str());
+
+				if (embeddedTex)
+					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(model->GetPath() + ".Texture_" + texturePath.C_Str(), reinterpret_cast<unsigned char*>(embeddedTex->pcData), embeddedTex->mWidth);
+				else
+				{
+					std::filesystem::path fullPath = model->GetPath();
+					std::filesystem::path directory = fullPath.parent_path();
+					texture.GlTexture = ResourceManager::GetInstance().CreateResource<GLTexture>(directory.string() + "\\" + texturePath.C_Str());
+				}
+
 				textures.push_back(texture);
 			}
 			return mat->GetTextureCount(textureType);

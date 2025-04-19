@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Resource.h"
+#include <Core/Aliases.h>
 
 namespace Zero
 {
@@ -15,23 +16,19 @@ namespace Zero
 	};
 	class Model: public Resource {
 	public:
-		~Model()
-		{
-			m_Meshes.clear();
-			m_Materials.clear();
-		}
+		~Model(){}
 	public:
-		inline void addMaterial(const Material& material) { m_Materials.push_back(material); }
+		inline void addMaterial(Ref<Material> material) { m_Materials.push_back(material); }
 		inline void addMesh(const Mesh& mesh) { m_Meshes.push_back(mesh); }
 		inline const std::vector<Mesh>& GetMeshes() const { return m_Meshes; }
-		inline const std::vector<Material>& GetMaterials() const { return m_Materials; }
+		inline const std::vector<Ref<Material>>& GetMaterials() const { return m_Materials; }
 		inline const std::string& GetPath() const { return m_Path; }
 		inline void SetPath(std::string path) { m_Path=path;}
 		inline void SetBoundingBox(BoundingBox bb) { m_BoundingBox = bb; }
 		inline BoundingBox GetBoundingBox() { return m_BoundingBox; }
 	private:
 		std::vector<Mesh>		m_Meshes;
-		std::vector<Material>	m_Materials;
+		std::vector<Ref<Material>>	m_Materials;
 		std::string				m_Path;
 		BoundingBox m_BoundingBox;
 	};

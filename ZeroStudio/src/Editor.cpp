@@ -12,7 +12,8 @@
 #include <Modules/Renderer.h>
 #include <ResourceManagement/ResourceManager.h>
 #include <nfd.h>
-#include <ImGuizmo.h>
+#include <Panels/ResourceExplorer.h>
+
 
 namespace Zero
 {
@@ -27,11 +28,13 @@ namespace Zero
 		m_Window.SetEventCallback(std::bind(&ZeroStudio::OnEvent, this, std::placeholders::_1));
 		Renderer::InitializeRenderer();
 		m_ImguiLayer.OnAttach();
-		m_EditorViewPanel = CreateScope<EditorViewPanel>();
-		m_HierarchyPanel = CreateScope<HierarchyPanel>();
-		m_InspectorPanel = CreateScope<InspectorPanel>();
-		m_PreviewPanel = CreateScope<PreviewPanel>();
-		m_LogPanel = CreateScope<LogPanel>();
+		m_ImguiLayer.AddPanel("EditorViewPanel", CreateRef<EditorViewPanel>());
+		m_ImguiLayer.AddPanel("HierarchyPanel", CreateRef<HierarchyPanel>());
+		m_ImguiLayer.AddPanel("InspectorPanel", CreateRef<InspectorPanel>());
+		m_ImguiLayer.AddPanel("PreviewPanel", CreateRef<PreviewPanel>());
+		m_ImguiLayer.AddPanel("EditorViewPanel", CreateRef<EditorViewPanel>());
+		m_ImguiLayer.AddPanel("ResourcesExplorer", CreateRef<ResourcesExplorer>());
+		m_ImguiLayer.AddPanel("LogPanel", CreateRef<LogPanel>());
 	}
 
 	void ZeroStudio::OnEvent(Event& e)
@@ -45,15 +48,15 @@ namespace Zero
 				return true;
 			});
 		Input::OnEvent(e);
-		m_EditorViewPanel->OnEvent(e);
+		m_ImguiLayer.GetPanel<EditorViewPanel>("EditorViewPanel")->OnEvent(e);
 	}
 
 	void ZeroStudio::Run()
 	{
 		newScene = CreateRef<Scene>();
-		m_PreviewPanel->SetSceneFocus(newScene);
-		m_HierarchyPanel->SetSceneFocus(newScene);
-		m_EditorViewPanel->SetSceneFocus(newScene);
+		m_ImguiLayer.GetPanel<EditorViewPanel>("EditorViewPanel")->SetSceneFocus(newScene);
+		m_ImguiLayer.GetPanel<PreviewPanel>("PreviewPanel")->SetSceneFocus(newScene);
+		m_ImguiLayer.GetPanel<HierarchyPanel>("HierarchyPanel")->SetSceneFocus(newScene);
 		Timer timer;
 		timer.Start();
 		while (!m_Window.ShouldClose()) {
@@ -61,17 +64,10 @@ namespace Zero
 			timer.Reset();
 			// Update Systems
 			CameraSystem::UpdateCameras(*newScene);
-			m_EditorViewPanel->UpdateEditorCamera(deltaTime);
-
-			
-
+			m_ImguiLayer.GetPanel<EditorViewPanel>("EditorViewPanel")->UpdateEditorCamera(deltaTime);
 			// Render Panels
 			m_ImguiLayer.Begin();
-			m_HierarchyPanel->OnRender();
-			m_InspectorPanel->OnRender();
-			m_PreviewPanel->OnRender();
-			m_EditorViewPanel->OnRender();
-			m_LogPanel->OnRender();
+			m_ImguiLayer.Render();
 			m_ImguiLayer.End();
 			// Update Window
 			m_Window.Update();
